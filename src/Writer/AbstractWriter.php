@@ -6,43 +6,32 @@ namespace ExtendsFramework\Logger\Writer;
 use ExtendsFramework\Logger\Decorator\DecoratorInterface;
 use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
-use SplPriorityQueue;
 
 abstract class AbstractWriter implements WriterInterface
 {
     /**
      * Filters.
      *
-     * @var SplPriorityQueue
+     * @var FilterInterface[]
      */
-    protected $filters;
+    protected $filters = [];
 
     /**
      * Decorators.
      *
-     * @var SplPriorityQueue
+     * @var DecoratorInterface[]
      */
-    protected $decorators;
-
-    /**
-     * Create SplPriorityQueue for filter and decorators.
-     */
-    public function __construct()
-    {
-        $this->filters = new SplPriorityQueue();
-        $this->decorators = new SplPriorityQueue();
-    }
+    protected $decorators = [];
 
     /**
      * Add filter.
      *
      * @param FilterInterface $filter
-     * @param int|null        $priority
      * @return AbstractWriter
      */
-    public function addFilter(FilterInterface $filter, int $priority = null): AbstractWriter
+    public function addFilter(FilterInterface $filter): AbstractWriter
     {
-        $this->filters->insert($filter, $priority ?: 1);
+        $this->filters[] = $filter;
 
         return $this;
     }
@@ -51,12 +40,11 @@ abstract class AbstractWriter implements WriterInterface
      * Add decorator.
      *
      * @param DecoratorInterface $decorator
-     * @param int|null           $priority
      * @return AbstractWriter
      */
-    public function addDecorator(DecoratorInterface $decorator, int $priority = null): AbstractWriter
+    public function addDecorator(DecoratorInterface $decorator): AbstractWriter
     {
-        $this->decorators->insert($decorator, $priority ?: 1);
+        $this->decorators[] = $decorator;
 
         return $this;
     }
@@ -70,9 +58,7 @@ abstract class AbstractWriter implements WriterInterface
     protected function decorate(LogInterface $log): LogInterface
     {
         foreach ($this->decorators as $decorator) {
-            if ($decorator instanceof DecoratorInterface) {
-                $log = $decorator->decorate($log);
-            }
+            $log = $decorator->decorate($log);
         }
 
         return $log;
@@ -87,7 +73,7 @@ abstract class AbstractWriter implements WriterInterface
     protected function filter(LogInterface $log): bool
     {
         foreach ($this->filters as $filter) {
-            if ($filter instanceof FilterInterface && $filter->filter($log) === true) {
+            if ($filter->filter($log) === true) {
                 return true;
             }
         }

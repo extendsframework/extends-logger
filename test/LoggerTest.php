@@ -16,8 +16,10 @@ class LoggerTest extends TestCase
      *
      * Test that message will be logged with priority and meta data.
      *
-     * @covers \ExtendsFramework\Logger\Logger::__construct()
      * @covers \ExtendsFramework\Logger\Logger::addWriter()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::__construct()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::getWriter()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::mustInterrupt()
      * @covers \ExtendsFramework\Logger\Logger::log()
      * @covers \ExtendsFramework\Logger\Logger::getLog()
      */
@@ -52,8 +54,10 @@ class LoggerTest extends TestCase
      *
      * Test that logger will write to syslog when writer throws an exception will writing.
      *
-     * @covers \ExtendsFramework\Logger\Logger::__construct()
      * @covers \ExtendsFramework\Logger\Logger::addWriter()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::__construct()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::getWriter()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::mustInterrupt()
      * @covers \ExtendsFramework\Logger\Logger::log()
      * @covers \ExtendsFramework\Logger\Logger::getLog()
      */
@@ -84,6 +88,39 @@ class LoggerTest extends TestCase
         $this->assertSame('', Buffer::getMessage()); // Can not mock getMessage() return value.
 
         Buffer::reset();
+    }
+
+    /**
+     * Interrupt.
+     *
+     * Test that writer will interrupt next writers.
+     *
+     * @covers \ExtendsFramework\Logger\Logger::addWriter()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::__construct()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::getWriter()
+     * @covers \ExtendsFramework\Logger\LoggerWriter::mustInterrupt()
+     * @covers \ExtendsFramework\Logger\Logger::log()
+     * @covers \ExtendsFramework\Logger\Logger::getLog()
+     */
+    public function testInterrupt(): void
+    {
+        $priority = $this->createMock(PriorityInterface::class);
+
+        $writer = $this->createMock(WriterInterface::class);
+        $writer
+            ->expects($this->once())
+            ->method('write');
+
+        /**
+         * @var WriterInterface   $writer
+         * @var PriorityInterface $priority
+         */
+        $logger = new Logger();
+        $logger
+            ->addWriter($writer, true)
+            ->addWriter($writer)
+            ->addWriter($writer)
+            ->log('Error!', $priority, ['foo' => 'bar']);
     }
 }
 

@@ -38,8 +38,6 @@ class StreamWriter extends AbstractWriter
      */
     public function __construct(string $stream)
     {
-        parent::__construct();
-
         $this->stream = $stream;
     }
 

@@ -19,7 +19,6 @@ class StreamWriterTest extends TestCase
      * Test that writer will writer log message to stream.
      *
      * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::__construct()
-     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
      * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::write()
@@ -108,7 +107,6 @@ class StreamWriterTest extends TestCase
      * Test that writer will not write when log is filtered.
      *
      * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::__construct()
-     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
      * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::write()
@@ -151,7 +149,6 @@ class StreamWriterTest extends TestCase
      * Test that when writing to stream fails and exception will be thrown.
      *
      * @covers                   \ExtendsFramework\Logger\Writer\Stream\StreamWriter::__construct()
-     * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::__construct()
      * @covers                   \ExtendsFramework\Logger\Writer\Stream\StreamWriter::write()
      * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()

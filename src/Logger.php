@@ -6,24 +6,15 @@ namespace ExtendsFramework\Logger;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
 use ExtendsFramework\Logger\Writer\WriterException;
 use ExtendsFramework\Logger\Writer\WriterInterface;
-use SplPriorityQueue;
 
 class Logger implements LoggerInterface
 {
     /**
      * Writer queue.
      *
-     * @var SplPriorityQueue
+     * @var LoggerWriter[]
      */
-    protected $writers;
-
-    /**
-     * Create new logger.
-     */
-    public function __construct()
-    {
-        $this->writers = new SplPriorityQueue();
-    }
+    protected $writers = [];
 
     /**
      * @inheritDoc
@@ -31,13 +22,14 @@ class Logger implements LoggerInterface
     public function log(string $message, PriorityInterface $priority = null, array $metaData = null): LoggerInterface
     {
         $log = $this->getLog($message, $priority, $metaData);
-        foreach (clone $this->writers as $writer) {
-            if ($writer instanceof WriterInterface) {
-                try {
-                    $writer->write($log);
-                } catch (WriterException $exception) {
-                    syslog(LOG_CRIT, $exception->getMessage());
+        foreach ($this->writers as $writer) {
+            try {
+                $writer->getWriter()->write($log);
+                if ($writer->mustInterrupt() === true) {
+                    break;
                 }
+            } catch (WriterException $exception) {
+                syslog(LOG_CRIT, $exception->getMessage());
             }
         }
 
@@ -45,17 +37,18 @@ class Logger implements LoggerInterface
     }
 
     /**
-     * Add $writer with $priority to logger.
+     * Add $writer to logger.
      *
-     * Writers with a higher $priority will be processed earlier. Default $priority is 1.
+     * When $interrupt is true and the writer's write method will not throw an exception, the next writer won't be
+     * called.
      *
      * @param WriterInterface $writer
-     * @param int|null        $priority
+     * @param bool|null       $interrupt
      * @return Logger
      */
-    public function addWriter(WriterInterface $writer, int $priority = null): Logger
+    public function addWriter(WriterInterface $writer, bool $interrupt = null): Logger
     {
-        $this->writers->insert($writer, $priority ?: 1);
+        $this->writers[] = new LoggerWriter($writer, $interrupt ?: false);
 
         return $this;
     }
