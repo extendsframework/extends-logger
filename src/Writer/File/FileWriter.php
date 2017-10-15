@@ -1,21 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Logger\Writer\Stream;
+namespace ExtendsFramework\Logger\Writer\File;
 
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Writer\AbstractWriter;
-use ExtendsFramework\Logger\Writer\Stream\Exception\StreamWriteFailed;
+use ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed;
 use ExtendsFramework\Logger\Writer\WriterInterface;
 
-class StreamWriter extends AbstractWriter
+class FileWriter extends AbstractWriter
 {
     /**
-     * Stream to write.
+     * Filename to write.
      *
      * @var string
      */
-    protected $stream;
+    protected $filename;
 
     /**
      * Log message format.
@@ -32,13 +32,13 @@ class StreamWriter extends AbstractWriter
     protected $endOfLine = PHP_EOL;
 
     /**
-     * Create new stream writer.
+     * FileWriter constructor.
      *
-     * @param string $stream
+     * @param string $filename
      */
-    public function __construct(string $stream)
+    public function __construct(string $filename)
     {
-        $this->stream = $stream;
+        $this->filename = $filename;
     }
 
     /**
@@ -50,9 +50,9 @@ class StreamWriter extends AbstractWriter
             $log = $this->decorate($log);
             $message = $this->getFormattedMessage($log);
 
-            $handle = fopen($this->stream, 'ab');
+            $handle = fopen($this->filename, 'ab');
             if (fwrite($handle, $message . $this->endOfLine) === false) {
-                throw new StreamWriteFailed($message);
+                throw new FileWriterFailed($message, $this->filename);
             }
 
             fclose($handle);

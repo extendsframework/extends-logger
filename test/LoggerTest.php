@@ -5,7 +5,7 @@ namespace ExtendsFramework\Logger;
 
 use ExtendsFramework\Logger\Decorator\DecoratorInterface;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
-use ExtendsFramework\Logger\Writer\Stream\Exception\StreamWriteFailed;
+use ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed;
 use ExtendsFramework\Logger\Writer\WriterInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -63,10 +63,10 @@ class LoggerTest extends TestCase
      */
     public function testSyslog(): void
     {
-        $exception = $this->createMock(StreamWriteFailed::class);
+        $exception = $this->createMock(FileWriterFailed::class);
 
         /**
-         * @var StreamWriteFailed $exception
+         * @var FileWriterFailed $exception
          */
         $writer = $this->createMock(WriterInterface::class);
         $writer

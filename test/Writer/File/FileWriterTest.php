@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Logger\Writer\Stream;
+namespace ExtendsFramework\Logger\Writer\File;
 
 use DateTime;
 use ExtendsFramework\Logger\Decorator\DecoratorInterface;
@@ -11,20 +11,20 @@ use ExtendsFramework\Logger\Priority\PriorityInterface;
 use ExtendsFramework\Logger\Writer\WriterInterface;
 use PHPUnit\Framework\TestCase;
 
-class StreamWriterTest extends TestCase
+class FileWriterTest extends TestCase
 {
     /**
      * Write.
      *
-     * Test that writer will writer log message to stream.
+     * Test that writer will writer log message to file.
      *
-     * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::__construct()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
-     * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::write()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()
-     * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::getFormattedMessage()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFormattedMessage()
      */
     public function testWrite(): void
     {
@@ -85,7 +85,7 @@ class StreamWriterTest extends TestCase
          * @var FilterInterface    $filter
          * @var DecoratorInterface $decorator
          */
-        $writer = new StreamWriter('application.log');
+        $writer = new FileWriter('application.log');
         $result = $writer
             ->addFilter($filter)
             ->addDecorator($decorator)
@@ -106,10 +106,10 @@ class StreamWriterTest extends TestCase
      *
      * Test that writer will not write when log is filtered.
      *
-     * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::__construct()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
-     * @covers \ExtendsFramework\Logger\Writer\Stream\StreamWriter::write()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      */
     public function testFilter(): void
@@ -132,7 +132,7 @@ class StreamWriterTest extends TestCase
          * @var LogInterface    $log
          * @var FilterInterface $filter
          */
-        $writer = new StreamWriter('application.log');
+        $writer = new FileWriter('application.log');
         $result = $writer
             ->addFilter($filter)
             ->write($log);
@@ -146,17 +146,17 @@ class StreamWriterTest extends TestCase
     /**
      * Write failed.
      *
-     * Test that when writing to stream fails and exception will be thrown.
+     * Test that when writing to file fails and exception will be thrown.
      *
-     * @covers                   \ExtendsFramework\Logger\Writer\Stream\StreamWriter::__construct()
-     * @covers                   \ExtendsFramework\Logger\Writer\Stream\StreamWriter::write()
+     * @covers                   \ExtendsFramework\Logger\Writer\File\FileWriter::__construct()
+     * @covers                   \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()
-     * @covers                   \ExtendsFramework\Logger\Writer\Stream\StreamWriter::getFormattedMessage()
-     * @covers                   \ExtendsFramework\Logger\Writer\Stream\Exception\StreamWriteFailed::__construct()
-     * @expectedException        \ExtendsFramework\Logger\Writer\Stream\Exception\StreamWriteFailed
+     * @covers                   \ExtendsFramework\Logger\Writer\File\FileWriter::getFormattedMessage()
+     * @covers                   \ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed::__construct()
+     * @expectedException        \ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed
      * @expectedExceptionMessage Failed to write message "2017-10-13T14:50:28+00:00 CRIT (2): Exceptional error!
-     *                           {"foo":"bar"}" to stream writer.
+     *                           {"foo":"bar"}" to file "application.log".
      */
     public function testWriteFailed(): void
     {
@@ -203,7 +203,7 @@ class StreamWriterTest extends TestCase
         /**
          * @var LogInterface $log
          */
-        $writer = new StreamWriter('application.log');
+        $writer = new FileWriter('application.log');
         $writer->write($log);
 
         Buffer::reset();
