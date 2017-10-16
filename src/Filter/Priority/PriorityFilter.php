@@ -34,8 +34,8 @@ class PriorityFilter implements FilterInterface
      */
     public function __construct(PriorityInterface $priority = null, ConstraintInterface $constraint = null)
     {
-        $this->priority = $priority ?: new CriticalPriority();
-        $this->constraint = $constraint ?: new GreaterThanConstraint();
+        $this->priority = $priority;
+        $this->constraint = $constraint;
     }
 
     /**
@@ -43,7 +43,9 @@ class PriorityFilter implements FilterInterface
      */
     public function filter(LogInterface $log): bool
     {
-        return $this->constraint->validate($log->getPriority()->getValue(), $this->priority->getValue()) === null;
+        return $this
+                ->getConstraint()
+                ->validate($log->getPriority()->getValue(), $this->getPriority()->getValue()) === null;
     }
 
     /**
@@ -52,5 +54,33 @@ class PriorityFilter implements FilterInterface
     public static function create(array $config): FilterInterface
     {
         return new static($config['priority'] ?? null, $config['constraint'] ?? null);
+    }
+
+    /**
+     * Get priority.
+     *
+     * @return PriorityInterface
+     */
+    protected function getPriority(): PriorityInterface
+    {
+        if ($this->priority === null) {
+            $this->priority = new CriticalPriority();
+        }
+
+        return $this->priority;
+    }
+
+    /**
+     * Get constraint.
+     *
+     * @return ConstraintInterface
+     */
+    protected function getConstraint(): ConstraintInterface
+    {
+        if ($this->constraint === null) {
+            $this->constraint = new GreaterThanConstraint();
+        }
+
+        return $this->constraint;
     }
 }

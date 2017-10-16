@@ -19,24 +19,16 @@ class PriorityFilterTest extends TestCase
      *
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::__construct()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::filter()
+     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getConstraint()
+     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getPriority()
      */
     public function testFilter(): void
     {
         $priority = $this->createMock(PriorityInterface::class);
         $priority
-            ->expects($this->exactly(2))
-            ->method('getValue')
-            ->willReturn(
-                2,
-                3
-            );
-
-        $constraint = $this->createMock(ConstraintInterface::class);
-        $constraint
             ->expects($this->once())
-            ->method('validate')
-            ->with(2, 3)
-            ->willReturn(null);
+            ->method('getValue')
+            ->willReturn(3);
 
         $log = $this->createMock(LogInterface::class);
         $log
@@ -46,10 +38,8 @@ class PriorityFilterTest extends TestCase
 
         /**
          * @var LogInterface        $log
-         * @var PriorityInterface   $priority
-         * @var ConstraintInterface $constraint
          */
-        $filter = new PriorityFilter($priority, $constraint);
+        $filter = new PriorityFilter();
 
         $this->assertTrue($filter->filter($log));
     }
@@ -61,6 +51,8 @@ class PriorityFilterTest extends TestCase
      *
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::__construct()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::filter()
+     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getConstraint()
+     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getPriority()
      */
     public function testDoNotFilter(): void
     {
