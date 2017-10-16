@@ -22,23 +22,27 @@ class FileWriter extends AbstractWriter
      *
      * @var string
      */
-    protected $format = '{datetime} {keyword} ({value}): {message} {metaData}';
+    protected $format;
 
     /**
      * End of line character.
      *
      * @var string
      */
-    protected $endOfLine = PHP_EOL;
+    protected $newLine;
 
     /**
      * FileWriter constructor.
      *
-     * @param string $filename
+     * @param string      $filename
+     * @param string|null $format
+     * @param string|null $newLine
      */
-    public function __construct(string $filename)
+    public function __construct(string $filename, string $format = null, string $newLine = null)
     {
         $this->filename = $filename;
+        $this->format = $format;
+        $this->newLine = $newLine;
     }
 
     /**
@@ -51,7 +55,7 @@ class FileWriter extends AbstractWriter
             $message = $this->getFormattedMessage($log);
 
             $handle = fopen($this->filename, 'ab');
-            if (fwrite($handle, $message . $this->endOfLine) === false) {
+            if (fwrite($handle, $message . $this->getNewLine()) === false) {
                 throw new FileWriterFailed($message, $this->filename);
             }
 
@@ -83,6 +87,34 @@ class FileWriter extends AbstractWriter
             '{metaData}' => $metaData,
         ];
 
-        return trim(strtr($this->format, $replacePairs));
+        return trim(strtr($this->getFormat(), $replacePairs));
+    }
+
+    /**
+     * Get log format.
+     *
+     * @return string
+     */
+    protected function getFormat(): string
+    {
+        if ($this->format === null) {
+            $this->format = '{datetime} {keyword} ({value}): {message} {metaData}';
+        }
+
+        return $this->format;
+    }
+
+    /**
+     * Get newline character(s).
+     *
+     * @return string
+     */
+    protected function getNewLine(): string
+    {
+        if ($this->newLine === null) {
+            $this->newLine = PHP_EOL;
+        }
+
+        return $this->newLine;
     }
 }
