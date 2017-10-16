@@ -22,22 +22,12 @@ class LogTest extends TestCase
      */
     public function testGetMethods(): void
     {
-        $priority = $this->createMock(PriorityInterface::class);
-
-        $dateTime = $this->createMock(DateTime::class);
-
-        /**
-         * @var PriorityInterface $priority
-         * @var DateTime          $dateTime
-         */
-        $log = new Log('Error!', $priority, $dateTime, [
-            'foo' => 'bar',
-        ]);
+        $log = new Log('Error!');
 
         $this->assertSame('Error!', $log->getMessage());
-        $this->assertSame($priority, $log->getPriority());
-        $this->assertSame($dateTime, $log->getDateTime());
-        $this->assertSame(['foo' => 'bar'], $log->getMetaData());
+        $this->assertInstanceOf(PriorityInterface::class, $log->getPriority());
+        $this->assertInstanceOf(DateTime::class, $log->getDateTime());
+        $this->assertSame([], $log->getMetaData());
     }
 
     /**

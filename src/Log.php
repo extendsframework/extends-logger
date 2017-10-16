@@ -48,9 +48,9 @@ class Log implements LogInterface
     public function __construct(string $message, PriorityInterface $priority = null, DateTime $datetime = null, array $metaData = null)
     {
         $this->message = $message;
-        $this->priority = $priority ?: new CriticalPriority();
-        $this->datetime = $datetime ?: new DateTime();
-        $this->metaData = $metaData ?: [];
+        $this->priority = $priority;
+        $this->datetime = $datetime;
+        $this->metaData = $metaData;
     }
 
     /**
@@ -66,6 +66,10 @@ class Log implements LogInterface
      */
     public function getPriority(): PriorityInterface
     {
+        if ($this->priority === null) {
+            $this->priority = new CriticalPriority();
+        }
+
         return $this->priority;
     }
 
@@ -74,6 +78,10 @@ class Log implements LogInterface
      */
     public function getDateTime(): DateTime
     {
+        if ($this->datetime === null) {
+            $this->datetime = new DateTime();
+        }
+
         return $this->datetime;
     }
 
@@ -82,6 +90,10 @@ class Log implements LogInterface
      */
     public function getMetaData(): array
     {
+        if ($this->metaData === null) {
+            $this->metaData = [];
+        }
+
         return $this->metaData;
     }
 
