@@ -18,6 +18,7 @@ class BacktraceDecoratorTest extends TestCase
      * @covers \ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator::__construct()
      * @covers \ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator::decorate()
      * @covers \ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator::getBacktrace()
+     * @covers \ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator::getLimit()
      */
     public function testDecorate(): void
     {

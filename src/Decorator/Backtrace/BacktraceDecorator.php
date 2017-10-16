@@ -18,11 +18,11 @@ class BacktraceDecorator implements DecoratorInterface
     /**
      * Create backtrace decorator.
      *
-     * @param int $depth
+     * @param int $limit
      */
-    public function __construct(int $depth = null)
+    public function __construct(int $limit = null)
     {
-        $this->limit = $depth ?: 6;
+        $this->limit = $limit;
     }
 
     /**
@@ -59,6 +59,20 @@ class BacktraceDecorator implements DecoratorInterface
      */
     protected function getBacktrace(): array
     {
-        return debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $this->limit);
+        return debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $this->getLimit());
+    }
+
+    /**
+     * Get backtrace limit.
+     *
+     * @return int
+     */
+    protected function getLimit(): int
+    {
+        if ($this->limit === null) {
+            $this->limit = 6;
+        }
+
+        return $this->limit;
     }
 }
