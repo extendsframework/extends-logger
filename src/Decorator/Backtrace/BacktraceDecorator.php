@@ -5,8 +5,10 @@ namespace ExtendsFramework\Logger\Decorator\Backtrace;
 
 use ExtendsFramework\Logger\Decorator\DecoratorInterface;
 use ExtendsFramework\Logger\LogInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class BacktraceDecorator implements DecoratorInterface
+class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
 {
     /**
      * Debug backtrace limit.
@@ -45,9 +47,9 @@ class BacktraceDecorator implements DecoratorInterface
     /**
      * @inheritDoc
      */
-    public static function create(array $config): DecoratorInterface
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): DecoratorInterface
     {
-        return new static($config['limit'] ?? null);
+        return new static();
     }
 
     /**

@@ -7,10 +7,12 @@ use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Priority\Critical\CriticalPriority;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use ExtendsFramework\Validator\Constraint\Comparison\GreaterThanConstraint;
 use ExtendsFramework\Validator\Constraint\ConstraintInterface;
 
-class PriorityFilter implements FilterInterface
+class PriorityFilter implements FilterInterface, StaticFactoryInterface
 {
     /**
      * Priority value to compare.
@@ -51,9 +53,20 @@ class PriorityFilter implements FilterInterface
     /**
      * @inheritDoc
      */
-    public static function create(array $config): FilterInterface
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): FilterInterface
     {
-        return new static($config['priority'] ?? null, $config['constraint'] ?? null);
+        if (array_key_exists('priority', $extra) === true) {
+            $priority = $serviceLocator->getService($extra['priority']['name'], $extra['priority']['options'] ?? []);
+        }
+
+        if (array_key_exists('constraint', $extra) === true) {
+            $constraint = $serviceLocator->getService($extra['constraint']['name'], $extra['constraint']['options'] ?? []);
+        }
+
+        return new static(
+            $priority ?? null,
+            $constraint ?? null
+        );
     }
 
     /**

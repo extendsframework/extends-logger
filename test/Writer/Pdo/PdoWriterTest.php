@@ -4,8 +4,12 @@ declare(strict_types=1);
 namespace ExtendsFramework\Logger\Writer\Pdo;
 
 use DateTime;
+use ExtendsFramework\Logger\Decorator\DecoratorInterface;
+use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
+use ExtendsFramework\Logger\Writer\WriterInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -71,7 +75,7 @@ class PdoWriterTest extends TestCase
             ->method('execute')
             ->with([
                 'value' => 2,
-                'keyword' => 'crit',
+                'keyword' => 'CRIT',
                 'date_time' => '2017-10-13 14:50:28',
                 'message' => 'Exceptional error!',
                 'meta_data' => '{"foo":"bar"}',
@@ -252,5 +256,51 @@ class PdoWriterTest extends TestCase
             ];
         });
         $writer->write($log);
+    }
+
+    /**
+     * Factory.
+     *
+     * Test that factory methods returns an instance of WriterInterface.
+     *
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::factory()
+     */
+    public function testFactory(): void
+    {
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+        $serviceLocator
+            ->expects($this->exactly(3))
+            ->method('getService')
+            ->withConsecutive(
+                [PDO::class],
+                [FilterInterface::class],
+                [DecoratorInterface::class]
+            )
+            ->willReturnOnConsecutiveCalls(
+                $this->createMock(PDO::class),
+                $this->createMock(FilterInterface::class),
+                $this->createMock(DecoratorInterface::class)
+            );
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $writer = PdoWriter::factory(PdoWriter::class, $serviceLocator, [
+            'query_string' => '',
+            'callback' => function () {
+            },
+            'filters' => [
+                [
+                    'name' => FilterInterface::class,
+                ],
+            ],
+            'decorators' => [
+                [
+                    'name' => DecoratorInterface::class,
+                ],
+            ],
+        ]);
+
+        $this->assertInstanceOf(WriterInterface::class, $writer);
     }
 }

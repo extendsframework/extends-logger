@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Priority\Debug;
 
-use ExtendsFramework\Logger\Priority\PriorityInterface;
+use ExtendsFramework\Logger\Priority\AbstractPriority;
 
-class DebugPriority implements PriorityInterface
+class DebugPriority extends AbstractPriority
 {
     /**
      * @inheritDoc

@@ -7,6 +7,7 @@ use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Writer\AbstractWriter;
 use ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed;
 use ExtendsFramework\Logger\Writer\WriterInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
 class FileWriter extends AbstractWriter
 {
@@ -63,6 +64,32 @@ class FileWriter extends AbstractWriter
         }
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null)
+    {
+        $writer = new static(
+            $extra['filename'],
+            $extra['format'] ?? null,
+            $extra['new_line'] ?? null
+        );
+
+        foreach ($extra['filters'] ?? [] as $filter) {
+            $writer->addFilter(
+                $serviceLocator->getService($filter['name'], $filter['options'] ?? [])
+            );
+        }
+
+        foreach ($extra['decorators'] ?? [] as $decorator) {
+            $writer->addDecorator(
+                $serviceLocator->getService($decorator['name'], $decorator['options'] ?? [])
+            );
+        }
+
+        return $writer;
     }
 
     /**

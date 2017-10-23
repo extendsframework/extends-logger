@@ -5,6 +5,7 @@ namespace ExtendsFramework\Logger\Decorator\Backtrace;
 
 use ExtendsFramework\Logger\Decorator\DecoratorInterface;
 use ExtendsFramework\Logger\LogInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class BacktraceDecoratorTest extends TestCase
@@ -37,16 +38,21 @@ class BacktraceDecoratorTest extends TestCase
     }
 
     /**
-     * Create.
+     * Factory.
      *
      * Test that create method will return a DecoratorInterface instance.
      *
      * @covers \ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator::__construct()
-     * @covers \ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator::create()
+     * @covers \ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator::factory()
      */
-    public function testCreate(): void
+    public function testFactory(): void
     {
-        $decorator = BacktraceDecorator::create([
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $decorator = BacktraceDecorator::factory(BacktraceDecorator::class, $serviceLocator, [
             'limit' => 5,
         ]);
 

@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Priority\Alert;
 
-use ExtendsFramework\Logger\Priority\PriorityInterface;
+use ExtendsFramework\Logger\Priority\AbstractPriority;
 
-class AlertPriority implements PriorityInterface
+class AlertPriority extends AbstractPriority
 {
     /**
      * @inheritDoc

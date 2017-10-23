@@ -8,6 +8,7 @@ use ExtendsFramework\Logger\Writer\AbstractWriter;
 use ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError;
 use ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithException;
 use ExtendsFramework\Logger\Writer\WriterInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -70,6 +71,32 @@ class PdoWriter extends AbstractWriter
         }
 
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): WriterInterface
+    {
+        $writer = new static(
+            $serviceLocator->getService(PDO::class),
+            $extra['query_string'] ?? null,
+            $extra['callback'] ?? null
+        );
+
+        foreach ($extra['filters'] ?? [] as $filter) {
+            $writer->addFilter(
+                $serviceLocator->getService($filter['name'], $filter['options'] ?? [])
+            );
+        }
+
+        foreach ($extra['decorators'] ?? [] as $decorator) {
+            $writer->addDecorator(
+                $serviceLocator->getService($decorator['name'], $decorator['options'] ?? [])
+            );
+        }
+
+        return $writer;
     }
 
     /**

@@ -6,6 +6,7 @@ namespace ExtendsFramework\Logger\Filter\Priority;
 use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use ExtendsFramework\Validator\Constraint\ConstraintInterface;
 use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +38,7 @@ class PriorityFilterTest extends TestCase
             ->willReturn($priority);
 
         /**
-         * @var LogInterface        $log
+         * @var LogInterface $log
          */
         $filter = new PriorityFilter();
 
@@ -89,18 +90,42 @@ class PriorityFilterTest extends TestCase
     }
 
     /**
-     * Create.
+     * Factory.
      *
      * Test that create method will return an FilterInterface instance.
      *
-     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::create()
+     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::factory()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::__construct()
      */
-    public function testCreate(): void
+    public function testFactory(): void
     {
-        $filter = PriorityFilter::create([
-            'priority' => $this->createMock(PriorityInterface::class),
-            'constraint' => $this->createMock(ConstraintInterface::class),
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+        $serviceLocator
+            ->expects($this->exactly(2))
+            ->method('getService')
+            ->withConsecutive(
+                [
+                    PriorityInterface::class
+                ],
+                [
+                    ConstraintInterface::class
+                ]
+            )
+            ->willReturnOnConsecutiveCalls(
+                $this->createMock(PriorityInterface::class),
+                $this->createMock(ConstraintInterface::class)
+            );
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $filter = PriorityFilter::factory(PriorityFilter::class, $serviceLocator, [
+            'priority' => [
+                'name' => PriorityInterface::class,
+            ],
+            'constraint' => [
+                'name' => ConstraintInterface::class,
+            ],
         ]);
 
         $this->assertInstanceOf(FilterInterface::class, $filter);

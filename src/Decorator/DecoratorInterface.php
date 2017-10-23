@@ -16,12 +16,4 @@ interface DecoratorInterface
      * @return LogInterface
      */
     public function decorate(LogInterface $log): LogInterface;
-
-    /**
-     * Create new decorator from $config.
-     *
-     * @param array $config
-     * @return DecoratorInterface
-     */
-    public static function create(array $config): DecoratorInterface;
 }

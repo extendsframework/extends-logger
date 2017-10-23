@@ -6,8 +6,9 @@ namespace ExtendsFramework\Logger\Writer;
 use ExtendsFramework\Logger\Decorator\DecoratorInterface;
 use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
+use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 
-abstract class AbstractWriter implements WriterInterface
+abstract class AbstractWriter implements WriterInterface, StaticFactoryInterface
 {
     /**
      * Filters.

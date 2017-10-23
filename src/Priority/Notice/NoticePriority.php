@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Priority\Notice;
 
-use ExtendsFramework\Logger\Priority\PriorityInterface;
+use ExtendsFramework\Logger\Priority\AbstractPriority;
 
-class NoticePriority implements PriorityInterface
+class NoticePriority extends AbstractPriority
 {
     /**
      * @inheritDoc

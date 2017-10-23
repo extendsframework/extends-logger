@@ -16,12 +16,4 @@ interface FilterInterface
      * @return bool
      */
     public function filter(LogInterface $log): bool;
-
-    /**
-     * Create a new filter from $config.
-     *
-     * @param array $config
-     * @return FilterInterface
-     */
-    public static function create(array $config): FilterInterface;
 }

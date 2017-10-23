@@ -9,6 +9,7 @@ use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
 use ExtendsFramework\Logger\Writer\WriterInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class FileWriterTest extends TestCase
@@ -299,6 +300,51 @@ class FileWriterTest extends TestCase
         $writer->write($log);
 
         Buffer::reset();
+    }
+
+
+    /**
+     * Factory.
+     *
+     * Test that factory methods returns an instance of WriterInterface.
+     *
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::factory()
+     */
+    public function testFactory(): void
+    {
+        $serviceLocator = $this->createMock(ServiceLocatorInterface::class);
+        $serviceLocator
+            ->expects($this->exactly(2))
+            ->method('getService')
+            ->withConsecutive(
+                [FilterInterface::class],
+                [DecoratorInterface::class]
+            )
+            ->willReturnOnConsecutiveCalls(
+                $this->createMock(FilterInterface::class),
+                $this->createMock(DecoratorInterface::class)
+            );
+
+        /**
+         * @var ServiceLocatorInterface $serviceLocator
+         */
+        $writer = FileWriter::factory(FileWriter::class, $serviceLocator, [
+            'filename' => '',
+            'format' => '',
+            'new_line' => '',
+            'filters' => [
+                [
+                    'name' => FilterInterface::class,
+                ],
+            ],
+            'decorators' => [
+                [
+                    'name' => DecoratorInterface::class,
+                ],
+            ],
+        ]);
+
+        $this->assertInstanceOf(WriterInterface::class, $writer);
     }
 }
 
