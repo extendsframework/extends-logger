@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Logger\ServiceLocator\Factory;
+namespace ExtendsFramework\Logger\Framework\ServiceLocator\Factory;
 
 use ExtendsFramework\Logger\LoggerInterface;
 use ExtendsFramework\Logger\Writer\WriterInterface;
@@ -13,9 +13,9 @@ class LoggerFactoryTest extends TestCase
     /**
      * Create service.
      *
-     * Test that..
+     * Test that factory will return an instance of LoggerInterface.
      *
-     * @covers \ExtendsFramework\Logger\ServiceLocator\Factory\LoggerFactory::createService()
+     * @covers \ExtendsFramework\Logger\Framework\ServiceLocator\Factory\LoggerFactory::createService()
      */
     public function testCreateService(): void
     {

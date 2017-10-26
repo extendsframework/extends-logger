@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Logger\ServiceLocator\Factory;
+namespace ExtendsFramework\Logger\Framework\ServiceLocator\Factory;
 
 use ExtendsFramework\Logger\Logger;
 use ExtendsFramework\Logger\LoggerInterface;

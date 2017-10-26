@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Logger\ServiceLocator\Loader;
+namespace ExtendsFramework\Logger\Framework\ServiceLocator\Config;
 
 use ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator;
 use ExtendsFramework\Logger\Filter\Priority\PriorityFilter;
@@ -14,23 +14,29 @@ use ExtendsFramework\Logger\Priority\Error\ErrorPriority;
 use ExtendsFramework\Logger\Priority\Informational\InformationalPriority;
 use ExtendsFramework\Logger\Priority\Notice\NoticePriority;
 use ExtendsFramework\Logger\Priority\Warning\WarningPriority;
-use ExtendsFramework\Logger\ServiceLocator\Factory\LoggerFactory;
+use ExtendsFramework\Logger\Framework\ServiceLocator\Factory\LoggerFactory;
+use ExtendsFramework\Logger\Framework\ServiceLocator\Loader\ConfigLoader;
 use ExtendsFramework\Logger\Writer\File\FileWriter;
 use ExtendsFramework\Logger\Writer\Pdo\PdoWriter;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\FactoryResolver;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryResolver;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
+use PHPUnit\Framework\TestCase;
 
-class ConfigLoader
+class ConfigLoaderTest extends TestCase
 {
     /**
-     * Service locator config for Logger component.
+     * Load.
      *
-     * @return array
+     * Test that correct config will be returned.
+     *
+     * @covers \ExtendsFramework\Logger\Framework\ServiceLocator\Loader\ConfigLoader::load()
      */
-    public function load(): array
+    public function testLoad(): void
     {
-        return [
+        $loader = new ConfigLoader();
+
+        $this->assertSame([
             ServiceLocatorInterface::class => [
                 FactoryResolver::class => [
                     LoggerInterface::class => LoggerFactory::class,
@@ -70,6 +76,6 @@ class ConfigLoader
                     ],
                 ],
             ],
-        ];
+        ], $loader->load());
     }
 }
