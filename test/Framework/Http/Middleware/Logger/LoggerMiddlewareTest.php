@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Logger\Framework\Http\Middleware;
+namespace ExtendsFramework\Logger\Framework\Http\Middleware\Logger;
 
 use Exception;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
@@ -18,8 +18,8 @@ class LoggerMiddlewareTest extends TestCase
      *
      * Test that response from chain will be returned.
      *
-     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\LoggerMiddleware::__construct()
-     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\LoggerMiddleware::process()
+     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::__construct()
+     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::process()
      */
     public function testProcess(): void
     {
@@ -50,8 +50,8 @@ class LoggerMiddlewareTest extends TestCase
      *
      * Test that exception will be caught and message will be logged.
      *
-     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\LoggerMiddleware::__construct()
-     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\LoggerMiddleware::process()
+     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::__construct()
+     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::process()
      */
     public function testLog(): void
     {

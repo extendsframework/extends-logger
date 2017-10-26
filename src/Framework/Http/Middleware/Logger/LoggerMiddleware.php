@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsFramework\Logger\Framework\Http\Middleware;
+namespace ExtendsFramework\Logger\Framework\Http\Middleware\Logger;
 
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Middleware\MiddlewareException;

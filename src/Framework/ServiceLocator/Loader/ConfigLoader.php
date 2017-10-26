@@ -5,7 +5,7 @@ namespace ExtendsFramework\Logger\Framework\ServiceLocator\Loader;
 
 use ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator;
 use ExtendsFramework\Logger\Filter\Priority\PriorityFilter;
-use ExtendsFramework\Logger\Framework\ServiceLocator\Factory\LoggerFactory;
+use ExtendsFramework\Logger\Framework\ServiceLocator\Factory\Logger\LoggerFactory;
 use ExtendsFramework\Logger\LoggerInterface;
 use ExtendsFramework\Logger\Priority\Alert\AlertPriority;
 use ExtendsFramework\Logger\Priority\Critical\CriticalPriority;
