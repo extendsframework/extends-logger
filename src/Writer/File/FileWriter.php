@@ -12,18 +12,25 @@ use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 class FileWriter extends AbstractWriter
 {
     /**
-     * Filename to write.
+     * Location to write file to.
      *
      * @var string
      */
-    protected $filename;
+    protected $location;
+
+    /**
+     * File format for date function.
+     *
+     * @var string
+     */
+    protected $fileFormat;
 
     /**
      * Log message format.
      *
      * @var string
      */
-    protected $format;
+    protected $logFormat;
 
     /**
      * End of line character.
@@ -35,14 +42,16 @@ class FileWriter extends AbstractWriter
     /**
      * FileWriter constructor.
      *
-     * @param string      $filename
-     * @param string|null $format
+     * @param string      $location
+     * @param string|null $fileFormat
+     * @param string|null $logFormat
      * @param string|null $newLine
      */
-    public function __construct(string $filename, string $format = null, string $newLine = null)
+    public function __construct(string $location, string $fileFormat = null, string $logFormat = null, string $newLine = null)
     {
-        $this->filename = $filename;
-        $this->format = $format;
+        $this->location = $location;
+        $this->fileFormat = $fileFormat;
+        $this->logFormat = $logFormat;
         $this->newLine = $newLine;
     }
 
@@ -54,10 +63,11 @@ class FileWriter extends AbstractWriter
         if ($this->filter($log) === false) {
             $log = $this->decorate($log);
             $message = $this->getFormattedMessage($log);
+            $filename = $this->getFileName();
 
-            $handle = fopen($this->filename, 'ab');
+            $handle = fopen($filename, 'ab');
             if (fwrite($handle, $message . $this->getNewLine()) === false) {
-                throw new FileWriterFailed($message, $this->filename);
+                throw new FileWriterFailed($message, $filename);
             }
 
             fclose($handle);
@@ -72,8 +82,9 @@ class FileWriter extends AbstractWriter
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null)
     {
         $writer = new static(
-            $extra['filename'],
-            $extra['format'] ?? null,
+            $extra['location'],
+            $extra['file_format'] ?? null,
+            $extra['log_format'] ?? null,
             $extra['new_line'] ?? null
         );
 
@@ -114,7 +125,21 @@ class FileWriter extends AbstractWriter
             '{metaData}' => $metaData,
         ];
 
-        return trim(strtr($this->getFormat(), $replacePairs));
+        return trim(strtr($this->getLogFormat(), $replacePairs));
+    }
+
+    /**
+     * Return full path and filename.
+     *
+     * @return string
+     */
+    protected function getFileName(): string
+    {
+        return sprintf(
+            '%s/%s.log',
+            rtrim($this->location, '/'),
+            date($this->fileFormat ?? 'Y-m-d')
+        );
     }
 
     /**
@@ -122,13 +147,13 @@ class FileWriter extends AbstractWriter
      *
      * @return string
      */
-    protected function getFormat(): string
+    protected function getLogFormat(): string
     {
-        if ($this->format === null) {
-            $this->format = '{datetime} {keyword} ({value}): {message} {metaData}';
+        if ($this->logFormat === null) {
+            $this->logFormat = '{datetime} {keyword} ({value}): {message} {metaData}';
         }
 
-        return $this->format;
+        return $this->logFormat;
     }
 
     /**

@@ -26,7 +26,8 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFormattedMessage()
-     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFormat()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLogFormat()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFilename()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getNewLine()
      */
     public function testWrite(): void
@@ -88,7 +89,7 @@ class FileWriterTest extends TestCase
          * @var FilterInterface    $filter
          * @var DecoratorInterface $decorator
          */
-        $writer = new FileWriter('application.log');
+        $writer = new FileWriter('/var/log/extends');
         $result = $writer
             ->addFilter($filter)
             ->addDecorator($decorator)
@@ -96,9 +97,10 @@ class FileWriterTest extends TestCase
 
 
         $this->assertInstanceOf(WriterInterface::class, $result);
+        $this->assertSame('/var/log/extends/' . date('Y-m-d') . '.log', Buffer::getFilename());
         $this->assertSame(
             '2017-10-13T14:50:28+00:00 CRIT (2): Exceptional error! {"foo":"bar"}' . PHP_EOL,
-            Buffer::get()
+            Buffer::getValue()
         );
 
         Buffer::reset();
@@ -114,7 +116,8 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
-     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFormat()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLogFormat()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFilename()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getNewLine()
      */
     public function testCustomFormat(): void
@@ -176,7 +179,7 @@ class FileWriterTest extends TestCase
          * @var FilterInterface    $filter
          * @var DecoratorInterface $decorator
          */
-        $writer = new FileWriter('application.log', '{keyword} ({value}): {message} {metaData}, {datetime}', "\n\r");
+        $writer = new FileWriter('/var/log/extends', 'd-m-Y', '{keyword} ({value}): {message} {metaData}, {datetime}', "\n\r");
         $result = $writer
             ->addFilter($filter)
             ->addDecorator($decorator)
@@ -184,9 +187,10 @@ class FileWriterTest extends TestCase
 
 
         $this->assertInstanceOf(WriterInterface::class, $result);
+        $this->assertSame('/var/log/extends/' . date('d-m-Y') . '.log', Buffer::getFilename());
         $this->assertSame(
             'CRIT (2): Exceptional error! {"foo":"bar"}, 2017-10-13T14:50:28+00:00' . "\n\r",
-            Buffer::get()
+            Buffer::getValue()
         );
 
         Buffer::reset();
@@ -202,7 +206,8 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
-     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFormat()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLogFormat()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFilename()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getNewLine()
      */
     public function testFilter(): void
@@ -225,13 +230,14 @@ class FileWriterTest extends TestCase
          * @var LogInterface    $log
          * @var FilterInterface $filter
          */
-        $writer = new FileWriter('application.log');
+        $writer = new FileWriter('/var/log/extends');
         $result = $writer
             ->addFilter($filter)
             ->write($log);
 
         $this->assertInstanceOf(WriterInterface::class, $result);
-        $this->assertNull(Buffer::get());
+        $this->assertNull(Buffer::getFilename());
+        $this->assertNull(Buffer::getValue());
 
         Buffer::reset();
     }
@@ -253,7 +259,7 @@ class FileWriterTest extends TestCase
      */
     public function testWriteFailed(): void
     {
-        Buffer::set(''); // Set empty string for fwrite to return false.
+        Buffer::setValue(''); // Set empty string for fwrite to return false.
 
         $priority = $this->createMock(PriorityInterface::class);
         $priority
@@ -296,7 +302,7 @@ class FileWriterTest extends TestCase
         /**
          * @var LogInterface $log
          */
-        $writer = new FileWriter('application.log');
+        $writer = new FileWriter('/var/log/extends');
         $writer->write($log);
 
         Buffer::reset();
@@ -329,8 +335,9 @@ class FileWriterTest extends TestCase
          * @var ServiceLocatorInterface $serviceLocator
          */
         $writer = FileWriter::factory(FileWriter::class, $serviceLocator, [
-            'filename' => '',
-            'format' => '',
+            'location' => '/var/log/extends',
+            'file_format' => '',
+            'log_format' => '',
             'new_line' => '',
             'filters' => [
                 [
@@ -350,14 +357,26 @@ class FileWriterTest extends TestCase
 
 class Buffer
 {
+    protected static $filename;
+
     protected static $value;
 
-    public static function get(): ?string
+    public static function getFilename(): ?string
     {
-        return static::$value;
+        return self::$filename;
     }
 
-    public static function set(string $value): void
+    public static function setFilename($filename): void
+    {
+        self::$filename = $filename;
+    }
+
+    public static function getValue(): ?string
+    {
+        return self::$value;
+    }
+
+    public static function setValue(string $value): void
     {
         static::$value .= $value;
     }
@@ -365,22 +384,24 @@ class Buffer
     public static function reset(): void
     {
         static::$value = null;
+        static::$filename = null;
     }
 }
 
 function fwrite(): bool
 {
-    if (Buffer::get() === '') {
+    if (Buffer::getValue() === '') {
         return false;
     }
 
-    Buffer::set(func_get_arg(1));
+    Buffer::setValue(func_get_arg(1));
 
     return true;
 }
 
 function fopen()
 {
+    Buffer::setFilename(func_get_arg(0));
 }
 
 function fclose()
