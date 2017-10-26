@@ -16,6 +16,7 @@
     "require-dev": {
         "php": ">=7.1",
         "phpunit/phpunit": "6.4.*",
+        "extendsframework/extends-http": "dev-master",
         "extendsframework/extends-validator": "dev-master",
         "extendsframework/extends-servicelocator": "dev-master"
     },
