@@ -60,7 +60,7 @@ class ConfigLoaderTest extends TestCase
                     [
                         'name' => FileWriter::class,
                         'options' => [
-                            'filename' => '',
+                            'filename' => './../data/log/' . date('Y-m-d') . '.log',
                         ],
                         'filters' => [
                             [
