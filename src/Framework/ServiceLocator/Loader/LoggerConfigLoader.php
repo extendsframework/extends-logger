@@ -20,22 +20,17 @@ use ExtendsFramework\Logger\Writer\Pdo\PdoWriter;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\FactoryResolver;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryResolver;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
-use PHPUnit\Framework\TestCase;
 
-class ConfigLoaderTest extends TestCase
+class LoggerConfigLoader
 {
     /**
-     * Load.
+     * Service locator config for Logger component.
      *
-     * Test that correct config will be returned.
-     *
-     * @covers \ExtendsFramework\Logger\Framework\ServiceLocator\Loader\ConfigLoader::load()
+     * @return array
      */
-    public function testLoad(): void
+    public function load(): array
     {
-        $loader = new ConfigLoader();
-
-        $this->assertSame([
+        return [
             ServiceLocatorInterface::class => [
                 FactoryResolver::class => [
                     LoggerInterface::class => LoggerFactory::class,
@@ -76,6 +71,6 @@ class ConfigLoaderTest extends TestCase
                     ],
                 ],
             ],
-        ], $loader->load());
+        ];
     }
 }
