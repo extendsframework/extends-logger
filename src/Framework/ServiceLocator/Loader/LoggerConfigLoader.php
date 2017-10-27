@@ -17,11 +17,12 @@ use ExtendsFramework\Logger\Priority\Notice\NoticePriority;
 use ExtendsFramework\Logger\Priority\Warning\WarningPriority;
 use ExtendsFramework\Logger\Writer\File\FileWriter;
 use ExtendsFramework\Logger\Writer\Pdo\PdoWriter;
+use ExtendsFramework\ServiceLocator\Config\Loader\LoaderInterface;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\FactoryResolver;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryResolver;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
-class LoggerConfigLoader
+class LoggerConfigLoader implements LoaderInterface
 {
     /**
      * Service locator config for Logger component.
