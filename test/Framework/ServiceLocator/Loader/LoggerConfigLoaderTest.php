@@ -60,7 +60,7 @@ class LoggerConfigLoaderTest extends TestCase
                     [
                         'name' => FileWriter::class,
                         'options' => [
-                            'location' => './../data/log/',
+                            'location' => './data/log/',
                             'file_format' => 'Y-m-d',
                         ],
                         'filters' => [
