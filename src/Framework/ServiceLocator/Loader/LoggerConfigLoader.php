@@ -52,25 +52,7 @@ class LoggerConfigLoader implements LoaderInterface
                 ],
             ],
             LoggerInterface::class => [
-                'writers' => [
-                    [
-                        'name' => FileWriter::class,
-                        'options' => [
-                            'location' => './data/log/',
-                            'file_format' => 'Y-m-d',
-                        ],
-                        'filters' => [
-                            [
-                                'name' => PriorityFilter::class,
-                            ],
-                        ],
-                        'decorators' => [
-                            [
-                                'name' => BacktraceDecorator::class,
-                            ],
-                        ],
-                    ],
-                ],
+                'writers' => [],
             ],
         ];
     }
