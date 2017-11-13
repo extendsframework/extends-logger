@@ -5,7 +5,6 @@ namespace ExtendsFramework\Logger\Framework\Http\Middleware\Logger;
 
 use Exception;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
-use ExtendsFramework\Http\Middleware\MiddlewareException;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
 use ExtendsFramework\Logger\LoggerInterface;
@@ -82,6 +81,6 @@ class LoggerMiddlewareTest extends TestCase
     }
 }
 
-class MiddlewareExceptionStub extends Exception implements MiddlewareException
+class MiddlewareExceptionStub extends Exception
 {
 }
