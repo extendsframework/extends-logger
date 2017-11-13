@@ -21,6 +21,7 @@ use ExtendsFramework\Logger\Writer\File\FileWriter;
 use ExtendsFramework\Logger\Writer\Pdo\PdoWriter;
 use ExtendsFramework\ServiceLocator\Config\Loader\LoaderInterface;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\FactoryResolver;
+use ExtendsFramework\ServiceLocator\Resolver\Reflection\ReflectionResolver;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryResolver;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
@@ -51,6 +52,9 @@ class LoggerConfigLoader implements LoaderInterface
                     WarningPriority::class => WarningPriority::class,
                     FileWriter::class => FileWriter::class,
                     PdoWriter::class => PdoWriter::class,
+                ],
+                ReflectionResolver::class => [
+                    LoggerMiddleware::class => LoggerMiddleware::class,
                 ],
             ],
             LoggerInterface::class => [

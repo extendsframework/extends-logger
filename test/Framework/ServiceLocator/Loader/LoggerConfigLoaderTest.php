@@ -20,6 +20,7 @@ use ExtendsFramework\Logger\Priority\Warning\WarningPriority;
 use ExtendsFramework\Logger\Writer\File\FileWriter;
 use ExtendsFramework\Logger\Writer\Pdo\PdoWriter;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\FactoryResolver;
+use ExtendsFramework\ServiceLocator\Resolver\Reflection\ReflectionResolver;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryResolver;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
@@ -55,6 +56,9 @@ class LoggerConfigLoaderTest extends TestCase
                     WarningPriority::class => WarningPriority::class,
                     FileWriter::class => FileWriter::class,
                     PdoWriter::class => PdoWriter::class,
+                ],
+                ReflectionResolver::class => [
+                    LoggerMiddleware::class => LoggerMiddleware::class,
                 ],
             ],
             LoggerInterface::class => [
