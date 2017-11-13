@@ -7,7 +7,6 @@ use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Middleware\MiddlewareException;
 use ExtendsFramework\Http\Middleware\MiddlewareInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
-use ExtendsFramework\Http\Response\Response;
 use ExtendsFramework\Http\Response\ResponseInterface;
 use ExtendsFramework\Logger\LoggerInterface;
 
@@ -39,8 +38,8 @@ class LoggerMiddleware implements MiddlewareInterface
             return $chain->proceed($request);
         } catch (MiddlewareException $exception) {
             $this->logger->log($exception->getMessage());
-        }
 
-        return (new Response())->withStatusCode(500);
+            throw $exception;
+        }
     }
 }

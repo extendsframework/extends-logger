@@ -50,8 +50,10 @@ class LoggerMiddlewareTest extends TestCase
      *
      * Test that exception will be caught and message will be logged.
      *
-     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::__construct()
-     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::process()
+     * @covers                   \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::__construct()
+     * @covers                   \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::process()
+     * @expectedException        \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\MiddlewareExceptionStub
+     * @expectedExceptionMessage Fancy exception message!
      */
     public function testLog(): void
     {
@@ -76,9 +78,7 @@ class LoggerMiddlewareTest extends TestCase
          * @var RequestInterface         $request
          */
         $middleware = new LoggerMiddleware($logger);
-        $response = $middleware->process($request, $chain);
-
-        $this->assertSame(500, $response->getStatusCode());
+        $middleware->process($request, $chain);
     }
 }
 
