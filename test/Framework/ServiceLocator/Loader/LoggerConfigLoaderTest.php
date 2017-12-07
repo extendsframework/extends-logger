@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Framework\ServiceLocator\Loader;
 
-use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Logger\Decorator\Backtrace\BacktraceDecorator;
 use ExtendsFramework\Logger\Filter\Priority\PriorityFilter;
 use ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware;
@@ -63,9 +62,6 @@ class LoggerConfigLoaderTest extends TestCase
             ],
             LoggerInterface::class => [
                 'writers' => [],
-            ],
-            MiddlewareChainInterface::class => [
-                LoggerMiddleware::class => 175,
             ],
         ], $loader->load());
     }
