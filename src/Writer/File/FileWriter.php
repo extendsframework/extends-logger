@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Writer\File;
 
+use ExtendsFramework\Logger\Decorator\DecoratorInterface;
+use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Writer\AbstractWriter;
 use ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed;
@@ -47,8 +49,12 @@ class FileWriter extends AbstractWriter
      * @param string|null $logFormat
      * @param string|null $newLine
      */
-    public function __construct(string $location, string $fileFormat = null, string $logFormat = null, string $newLine = null)
-    {
+    public function __construct(
+        string $location,
+        string $fileFormat = null,
+        string $logFormat = null,
+        string $newLine = null
+    ) {
         $this->location = $location;
         $this->fileFormat = $fileFormat;
         $this->logFormat = $logFormat;
@@ -79,7 +85,7 @@ class FileWriter extends AbstractWriter
     /**
      * @inheritDoc
      */
-    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null)
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
         $writer = new static(
             $extra['location'],
@@ -89,15 +95,21 @@ class FileWriter extends AbstractWriter
         );
 
         foreach ($extra['filters'] ?? [] as $filter) {
-            $writer->addFilter(
-                $serviceLocator->getService($filter['name'], $filter['options'] ?? [])
-            );
+            $service = $serviceLocator->getService($filter['name'], $filter['options'] ?? []);
+
+            /**
+             * @var FilterInterface $service
+             */
+            $writer->addFilter($service);
         }
 
         foreach ($extra['decorators'] ?? [] as $decorator) {
-            $writer->addDecorator(
-                $serviceLocator->getService($decorator['name'], $decorator['options'] ?? [])
-            );
+            $service = $serviceLocator->getService($decorator['name'], $decorator['options'] ?? []);
+
+            /**
+             * @var DecoratorInterface $service
+             */
+            $writer->addDecorator($service);
         }
 
         return $writer;

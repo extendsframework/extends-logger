@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Writer\Pdo;
 
+use ExtendsFramework\Logger\Decorator\DecoratorInterface;
+use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Writer\AbstractWriter;
 use ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError;
@@ -76,24 +78,35 @@ class PdoWriter extends AbstractWriter
     /**
      * @inheritDoc
      */
-    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): WriterInterface
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
+        $pdo = $serviceLocator->getService(PDO::class);
+
+        /**
+         * @var PDO $pdo
+         */
         $writer = new static(
-            $serviceLocator->getService(PDO::class),
+            $pdo,
             $extra['query_string'] ?? null,
             $extra['callback'] ?? null
         );
 
         foreach ($extra['filters'] ?? [] as $filter) {
-            $writer->addFilter(
-                $serviceLocator->getService($filter['name'], $filter['options'] ?? [])
-            );
+            $service = $serviceLocator->getService($filter['name'], $filter['options'] ?? []);
+
+            /**
+             * @var FilterInterface $service
+             */
+            $writer->addFilter($service);
         }
 
         foreach ($extra['decorators'] ?? [] as $decorator) {
-            $writer->addDecorator(
-                $serviceLocator->getService($decorator['name'], $decorator['options'] ?? [])
-            );
+            $service = $serviceLocator->getService($decorator['name'], $decorator['options'] ?? []);
+
+            /**
+             * @var DecoratorInterface $service
+             */
+            $writer->addDecorator($service);
         }
 
         return $writer;
@@ -103,11 +116,10 @@ class PdoWriter extends AbstractWriter
      * Get statement to execute.s
      *
      * @return PDOStatement
-     * @throws PDOException
      */
     protected function getStatement(): PDOStatement
     {
-        return $this->pdo->prepare($this->getQueryString());
+        return $this->pdo->prepare(trim($this->getQueryString()));
     }
 
     /**
@@ -144,7 +156,7 @@ class PdoWriter extends AbstractWriter
                     'keyword' => strtoupper($priority->getKeyword()),
                     'date_time' => $log->getDateTime()->format('Y-m-d H:i:s'),
                     'message' => $log->getMessage(),
-                    'meta_data' => $metaData
+                    'meta_data' => $metaData,
                 ];
             };
         }
@@ -160,7 +172,8 @@ class PdoWriter extends AbstractWriter
     protected function getQueryString(): string
     {
         if ($this->queryString === null) {
-            $this->queryString = 'INSERT INTO log (value, keyword, date_time, message, meta_data) VALUES (:value, :keyword, :date_time, :message, :meta_data)';
+            $this->queryString = 'INSERT INTO log (value, keyword, date_time, message, meta_data)' .
+                ' VALUES (:value, :keyword, :date_time, :message, :meta_data)';
         }
 
         return $this->queryString;

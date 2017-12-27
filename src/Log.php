@@ -45,8 +45,12 @@ class Log implements LogInterface
      * @param DateTime          $datetime
      * @param array             $metaData
      */
-    public function __construct(string $message, PriorityInterface $priority = null, DateTime $datetime = null, array $metaData = null)
-    {
+    public function __construct(
+        string $message,
+        PriorityInterface $priority = null,
+        DateTime $datetime = null,
+        array $metaData = null
+    ) {
         $this->message = $message;
         $this->priority = $priority;
         $this->datetime = $datetime;

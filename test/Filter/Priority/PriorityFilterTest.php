@@ -7,8 +7,8 @@ use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintInterface;
-use ExtendsFramework\Validator\Constraint\ConstraintViolationInterface;
+use ExtendsFramework\Validator\Result\ResultInterface;
+use ExtendsFramework\Validator\ValidatorInterface;
 use PHPUnit\Framework\TestCase;
 
 class PriorityFilterTest extends TestCase
@@ -16,11 +16,11 @@ class PriorityFilterTest extends TestCase
     /**
      * Filter.
      *
-     * Test that filter returns true when constraint returns null.
+     * Test that filter returns true when validator is valid.
      *
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::__construct()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::filter()
-     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getConstraint()
+     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getValidator()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getPriority()
      */
     public function testFilter(): void
@@ -48,43 +48,42 @@ class PriorityFilterTest extends TestCase
     /**
      * Do not filter.
      *
-     * Test that filter returns false when constraint returns a violation.
+     * Test that filter returns false when validator is invalid.
      *
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::__construct()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::filter()
-     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getConstraint()
+     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getValidator()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getPriority()
      */
     public function testDoNotFilter(): void
     {
         $priority = $this->createMock(PriorityInterface::class);
         $priority
-            ->expects($this->exactly(2))
             ->method('getValue')
-            ->willReturn(
-                3,
-                2
-            );
+            ->willReturn(3);
 
-        $constraint = $this->createMock(ConstraintInterface::class);
-        $constraint
-            ->expects($this->once())
+        $result = $this->createMock(ResultInterface::class);
+        $result
+            ->method('isValid')
+            ->willReturn(false);
+
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator
             ->method('validate')
-            ->with(3, 2)
-            ->willReturn($this->createMock(ConstraintViolationInterface::class));
+            ->with(3)
+            ->willReturn($result);
 
         $log = $this->createMock(LogInterface::class);
         $log
-            ->expects($this->once())
             ->method('getPriority')
             ->willReturn($priority);
 
         /**
-         * @var LogInterface        $log
-         * @var PriorityInterface   $priority
-         * @var ConstraintInterface $constraint
+         * @var LogInterface       $log
+         * @var PriorityInterface  $priority
+         * @var ValidatorInterface $validator
          */
-        $filter = new PriorityFilter($priority, $constraint);
+        $filter = new PriorityFilter($priority, $validator);
 
         $this->assertFalse($filter->filter($log));
     }
@@ -105,15 +104,15 @@ class PriorityFilterTest extends TestCase
             ->method('getService')
             ->withConsecutive(
                 [
-                    PriorityInterface::class
+                    PriorityInterface::class,
                 ],
                 [
-                    ConstraintInterface::class
+                    ValidatorInterface::class,
                 ]
             )
             ->willReturnOnConsecutiveCalls(
                 $this->createMock(PriorityInterface::class),
-                $this->createMock(ConstraintInterface::class)
+                $this->createMock(ValidatorInterface::class)
             );
 
         /**
@@ -123,8 +122,8 @@ class PriorityFilterTest extends TestCase
             'priority' => [
                 'name' => PriorityInterface::class,
             ],
-            'constraint' => [
-                'name' => ConstraintInterface::class,
+            'validator' => [
+                'name' => ValidatorInterface::class,
             ],
         ]);
 

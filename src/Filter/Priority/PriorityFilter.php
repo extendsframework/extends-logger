@@ -9,8 +9,8 @@ use ExtendsFramework\Logger\Priority\Critical\CriticalPriority;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
-use ExtendsFramework\Validator\Constraint\Comparison\GreaterThanConstraint;
-use ExtendsFramework\Validator\Constraint\ConstraintInterface;
+use ExtendsFramework\Validator\Comparison\GreaterThanValidator;
+use ExtendsFramework\Validator\ValidatorInterface;
 
 class PriorityFilter implements FilterInterface, StaticFactoryInterface
 {
@@ -24,20 +24,20 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
     /**
      * Comparison operator.
      *
-     * @var ConstraintInterface
+     * @var ValidatorInterface
      */
-    protected $constraint;
+    protected $validator;
 
     /**
      * Create new priority filter.
      *
-     * @param PriorityInterface|null   $priority
-     * @param ConstraintInterface|null $constraint
+     * @param PriorityInterface|null  $priority
+     * @param ValidatorInterface|null $constraint
      */
-    public function __construct(PriorityInterface $priority = null, ConstraintInterface $constraint = null)
+    public function __construct(PriorityInterface $priority = null, ValidatorInterface $constraint = null)
     {
         $this->priority = $priority;
-        $this->constraint = $constraint;
+        $this->validator = $constraint;
     }
 
     /**
@@ -46,21 +46,25 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
     public function filter(LogInterface $log): bool
     {
         return $this
-                ->getConstraint()
-                ->validate($log->getPriority()->getValue(), $this->getPriority()->getValue()) === null;
+                ->getValidator()
+                ->validate($log->getPriority()->getValue())
+                ->isValid() === true;
     }
 
     /**
      * @inheritDoc
      */
-    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): FilterInterface
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
         if (array_key_exists('priority', $extra) === true) {
             $priority = $serviceLocator->getService($extra['priority']['name'], $extra['priority']['options'] ?? []);
         }
 
-        if (array_key_exists('constraint', $extra) === true) {
-            $constraint = $serviceLocator->getService($extra['constraint']['name'], $extra['constraint']['options'] ?? []);
+        if (array_key_exists('validator', $extra) === true) {
+            $constraint = $serviceLocator->getService(
+                $extra['validator']['name'],
+                $extra['validator']['options'] ?? []
+            );
         }
 
         return new static(
@@ -84,16 +88,18 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
     }
 
     /**
-     * Get constraint.
+     * Get validator.
      *
-     * @return ConstraintInterface
+     * @return ValidatorInterface
      */
-    protected function getConstraint(): ConstraintInterface
+    protected function getValidator(): ValidatorInterface
     {
-        if ($this->constraint === null) {
-            $this->constraint = new GreaterThanConstraint();
+        if ($this->validator === null) {
+            $this->validator = new GreaterThanValidator(
+                $this->getPriority()->getValue()
+            );
         }
 
-        return $this->constraint;
+        return $this->validator;
     }
 }

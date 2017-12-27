@@ -11,7 +11,7 @@ abstract class AbstractPriority implements PriorityInterface, StaticFactoryInter
     /**
      * @inheritDoc
      */
-    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null)
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
         return new static();
     }

@@ -20,7 +20,6 @@ class StatementFailedWithException extends RuntimeException implements PdoWriter
         parent::__construct(sprintf(
             'Failed to write message "%s" to PDO. See previous exception for details.',
             $message
-
         ), 0, $exception);
     }
 }
