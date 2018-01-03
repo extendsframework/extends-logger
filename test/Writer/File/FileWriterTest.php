@@ -22,12 +22,16 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators())
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFormattedMessage()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLogFormat()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFilename()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLocation()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFileFormat()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getNewLine()
      */
     public function testWrite(): void
@@ -95,7 +99,6 @@ class FileWriterTest extends TestCase
             ->addDecorator($decorator)
             ->write($log);
 
-
         $this->assertInstanceOf(WriterInterface::class, $result);
         $this->assertSame('/var/log/extends/' . date('Y-m-d') . '.log', Buffer::getFilename());
         $this->assertSame(
@@ -114,10 +117,14 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators())
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLogFormat()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFilename()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLocation()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFileFormat()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getNewLine()
      */
     public function testCustomFormat(): void
@@ -179,12 +186,12 @@ class FileWriterTest extends TestCase
          * @var FilterInterface    $filter
          * @var DecoratorInterface $decorator
          */
-        $writer = new FileWriter('/var/log/extends', 'd-m-Y', '{keyword} ({value}): {message} {metaData}, {datetime}', "\n\r");
+        $writer = new FileWriter('/var/log/extends', 'd-m-Y', '{keyword} ({value}): {message} {metaData}, {datetime}',
+            "\n\r");
         $result = $writer
             ->addFilter($filter)
             ->addDecorator($decorator)
             ->write($log);
-
 
         $this->assertInstanceOf(WriterInterface::class, $result);
         $this->assertSame('/var/log/extends/' . date('d-m-Y') . '.log', Buffer::getFilename());
@@ -204,10 +211,14 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators())
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLogFormat()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFilename()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLocation()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFileFormat()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getNewLine()
      */
     public function testFilter(): void
@@ -251,6 +262,8 @@ class FileWriterTest extends TestCase
      * @covers                   \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()
+     * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
+     * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators())
      * @covers                   \ExtendsFramework\Logger\Writer\File\FileWriter::getFormattedMessage()
      * @covers                   \ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed::__construct()
      * @expectedException        \ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed
@@ -307,7 +320,6 @@ class FileWriterTest extends TestCase
 
         Buffer::reset();
     }
-
 
     /**
      * Factory.

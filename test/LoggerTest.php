@@ -21,6 +21,7 @@ class LoggerTest extends TestCase
      * @covers \ExtendsFramework\Logger\LoggerWriter::getWriter()
      * @covers \ExtendsFramework\Logger\LoggerWriter::mustInterrupt()
      * @covers \ExtendsFramework\Logger\Logger::log()
+     * @covers \ExtendsFramework\Logger\Logger::getWriters()
      * @covers \ExtendsFramework\Logger\Logger::getLog()
      */
     public function testLog(): void
@@ -59,6 +60,7 @@ class LoggerTest extends TestCase
      * @covers \ExtendsFramework\Logger\LoggerWriter::getWriter()
      * @covers \ExtendsFramework\Logger\LoggerWriter::mustInterrupt()
      * @covers \ExtendsFramework\Logger\Logger::log()
+     * @covers \ExtendsFramework\Logger\Logger::getWriters()
      * @covers \ExtendsFramework\Logger\Logger::getLog()
      */
     public function testSyslog(): void
@@ -100,6 +102,7 @@ class LoggerTest extends TestCase
      * @covers \ExtendsFramework\Logger\LoggerWriter::getWriter()
      * @covers \ExtendsFramework\Logger\LoggerWriter::mustInterrupt()
      * @covers \ExtendsFramework\Logger\Logger::log()
+     * @covers \ExtendsFramework\Logger\Logger::getWriters()
      * @covers \ExtendsFramework\Logger\Logger::getLog()
      */
     public function testInterrupt(): void

@@ -149,8 +149,8 @@ class FileWriter extends AbstractWriter
     {
         return sprintf(
             '%s/%s.log',
-            rtrim($this->location, '/'),
-            date($this->fileFormat ?? 'Y-m-d')
+            rtrim($this->getLocation(), '/'),
+            date($this->getFileFormat())
         );
     }
 
@@ -180,5 +180,25 @@ class FileWriter extends AbstractWriter
         }
 
         return $this->newLine;
+    }
+
+    /**
+     * Get location.
+     *
+     * @return string|null
+     */
+    protected function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    /**
+     * Get file format.
+     *
+     * @return string|null
+     */
+    protected function getFileFormat(): ?string
+    {
+        return $this->fileFormat ?? 'Y-m-d';
     }
 }

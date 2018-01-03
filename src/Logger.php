@@ -22,7 +22,7 @@ class Logger implements LoggerInterface
     public function log(string $message, PriorityInterface $priority = null, array $metaData = null): LoggerInterface
     {
         $log = $this->getLog($message, $priority, $metaData);
-        foreach ($this->writers as $writer) {
+        foreach ($this->getWriters() as $writer) {
             try {
                 $writer->getWriter()->write($log);
                 if ($writer->mustInterrupt() === true) {
@@ -64,5 +64,15 @@ class Logger implements LoggerInterface
     protected function getLog(string $message, PriorityInterface $priority = null, array $metaData = null): LogInterface
     {
         return new Log($message, $priority ?? null, null, $metaData ?? null);
+    }
+
+    /**
+     * Get writers.
+     *
+     * @return LoggerWriter[]
+     */
+    protected function getWriters(): array
+    {
+        return $this->writers;
     }
 }

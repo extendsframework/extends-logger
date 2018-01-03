@@ -58,7 +58,7 @@ abstract class AbstractWriter implements WriterInterface, StaticFactoryInterface
      */
     protected function decorate(LogInterface $log): LogInterface
     {
-        foreach ($this->decorators as $decorator) {
+        foreach ($this->getDecorators() as $decorator) {
             $log = $decorator->decorate($log);
         }
 
@@ -73,12 +73,32 @@ abstract class AbstractWriter implements WriterInterface, StaticFactoryInterface
      */
     protected function filter(LogInterface $log): bool
     {
-        foreach ($this->filters as $filter) {
+        foreach ($this->getFilters() as $filter) {
             if ($filter->filter($log) === true) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Get filters.
+     *
+     * @return FilterInterface[]
+     */
+    protected function getFilters(): array
+    {
+        return $this->filters;
+    }
+
+    /**
+     * Get decorators.
+     *
+     * @return DecoratorInterface[]
+     */
+    protected function getDecorators(): array
+    {
+        return $this->decorators;
     }
 }

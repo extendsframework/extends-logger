@@ -119,7 +119,9 @@ class PdoWriter extends AbstractWriter
      */
     protected function getStatement(): PDOStatement
     {
-        return $this->pdo->prepare(trim($this->getQueryString()));
+        return $this
+            ->getPdo()
+            ->prepare(trim($this->getQueryString()));
     }
 
     /**
@@ -177,5 +179,15 @@ class PdoWriter extends AbstractWriter
         }
 
         return $this->queryString;
+    }
+
+    /**
+     * Get pdo.
+     *
+     * @return PDO
+     */
+    protected function getPdo(): PDO
+    {
+        return $this->pdo;
     }
 }
