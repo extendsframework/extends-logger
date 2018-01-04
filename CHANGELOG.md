@@ -9,10 +9,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Changed
 - Refactored direct property access with getters.
 
-## [0.1.0] - 2017-12-17
+## 0.1.0 - 2017-12-17
 
 ### Added
 - Initial version.
 
 [Unreleased]: https://github.com/extendsframework/extends-logger/compare/0.1.0...HEAD
-[0.1.0]: https://github.com/extendsframework/extends-logger/tree/0.1.0
