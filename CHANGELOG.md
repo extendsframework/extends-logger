@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [Unreleased]
 
 ### Changed
-- Refactored direct property access with getters.
+- Refactored direct property access to protected get methods.
 
 ## 0.1.0 - 2017-12-17
 
