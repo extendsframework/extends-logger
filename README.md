@@ -17,6 +17,8 @@ $ composer require extendsframework/extends-logger
 
 ## Example
 
+An simple example to give an idea how to use the logger.
+
 ```php
 <?php
 declare(strict_types=1);
