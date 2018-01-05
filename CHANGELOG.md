@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Changed
 - Refactored direct property access to protected get methods.
+- Added JSON decode flag to not escape backslashes for legibility.
 
 ## 0.1.0 - 2017-12-17
 
