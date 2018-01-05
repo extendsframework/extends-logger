@@ -148,7 +148,7 @@ class PdoWriter extends AbstractWriter
             $this->callback = function (LogInterface $log): array {
                 $metaData = $log->getMetaData() ?: null;
                 if (is_array($metaData) === true) {
-                    $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR);
+                    $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_SLASHES);
                 }
 
                 $priority = $log->getPriority();
