@@ -19,21 +19,21 @@ class Log implements LogInterface
     /**
      * Log priority.
      *
-     * @var PriorityInterface
+     * @var PriorityInterface|null
      */
     private $priority;
 
     /**
      * Datetime when log happened.
      *
-     * @var DateTime
+     * @var DateTime|null
      */
     private $datetime;
 
     /**
      * Extra meta data.
      *
-     * @var array
+     * @var array|null
      */
     private $metaData;
 
