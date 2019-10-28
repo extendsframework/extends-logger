@@ -13,7 +13,7 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
     /**
      * Debug backtrace limit.
      *
-     * @var int
+     * @var int|null
      */
     protected $limit;
 
