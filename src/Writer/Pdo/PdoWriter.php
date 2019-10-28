@@ -178,9 +178,7 @@ class PdoWriter extends AbstractWriter
     private function getQueryString(): string
     {
         if ($this->queryString === null) {
-            $this->queryString = '
-                INSERT INTO log (value, keyword, date_time, message, meta_data)
-                VALUES (:value, :keyword, :date_time, :message, :meta_data)';
+            $this->queryString = 'INSERT INTO log (value, keyword, date_time, message, meta_data) VALUES (:value, :keyword, :date_time, :message, :meta_data)';
         }
 
         return $this->queryString;
