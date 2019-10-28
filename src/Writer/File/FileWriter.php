@@ -66,7 +66,7 @@ class FileWriter extends AbstractWriter
      */
     public function write(LogInterface $log): WriterInterface
     {
-        if ($this->filter($log) === false) {
+        if (!$this->filter($log)) {
             $log = $this->decorate($log);
             $message = $this->getFormattedMessage($log);
             $filename = $this->getFileName();
@@ -124,7 +124,7 @@ class FileWriter extends AbstractWriter
     protected function getFormattedMessage(LogInterface $log): string
     {
         $metaData = $log->getMetaData() ?: null;
-        if (is_array($metaData) === true) {
+        if (is_array($metaData)) {
             $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_SLASHES);
         }
 

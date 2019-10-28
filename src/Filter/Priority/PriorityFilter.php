@@ -48,7 +48,7 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
         return $this
                 ->getValidator()
                 ->validate($log->getPriority()->getValue())
-                ->isValid() === true;
+                ->isValid();
     }
 
     /**
@@ -56,11 +56,11 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
-        if (array_key_exists('priority', $extra) === true) {
+        if (array_key_exists('priority', $extra)) {
             $priority = $serviceLocator->getService($extra['priority']['name'], $extra['priority']['options'] ?? []);
         }
 
-        if (array_key_exists('validator', $extra) === true) {
+        if (array_key_exists('validator', $extra)) {
             $constraint = $serviceLocator->getService(
                 $extra['validator']['name'],
                 $extra['validator']['options'] ?? []

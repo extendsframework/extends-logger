@@ -35,7 +35,7 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
         $backtrace = $this->getBacktrace();
         $call = end($backtrace);
 
-        if (is_array($call) === true) {
+        if (is_array($call)) {
             foreach ($call as $key => $value) {
                 $log = $log->andMetaData($key, $value);
             }

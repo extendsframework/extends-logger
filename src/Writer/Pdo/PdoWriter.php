@@ -57,7 +57,7 @@ class PdoWriter extends AbstractWriter
      */
     public function write(LogInterface $log): WriterInterface
     {
-        if ($this->filter($log) === false) {
+        if (!$this->filter($log)) {
             $log = $this->decorate($log);
 
             $statement = $this->getStatement();
@@ -67,7 +67,7 @@ class PdoWriter extends AbstractWriter
                 throw new StatementFailedWithException($exception, $log->getMessage());
             }
 
-            if ($result === false) {
+            if (!$result) {
                 throw new StatementFailedWithError($statement->errorCode(), $log->getMessage());
             }
         }
@@ -147,7 +147,7 @@ class PdoWriter extends AbstractWriter
         if ($this->callback === null) {
             $this->callback = function (LogInterface $log): array {
                 $metaData = $log->getMetaData() ?: null;
-                if (is_array($metaData) === true) {
+                if (is_array($metaData)) {
                     $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_SLASHES);
                 }
 

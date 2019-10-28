@@ -74,7 +74,7 @@ abstract class AbstractWriter implements WriterInterface, StaticFactoryInterface
     protected function filter(LogInterface $log): bool
     {
         foreach ($this->getFilters() as $filter) {
-            if ($filter->filter($log) === true) {
+            if ($filter->filter($log)) {
                 return true;
             }
         }
