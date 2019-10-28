@@ -8,6 +8,7 @@ use ExtendsFramework\Logger\Decorator\DecoratorInterface;
 use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
+use ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed;
 use ExtendsFramework\Logger\Writer\WriterInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +24,7 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
-     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators())
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()
@@ -99,7 +100,7 @@ class FileWriterTest extends TestCase
             ->addDecorator($decorator)
             ->write($log);
 
-        $this->assertInstanceOf(WriterInterface::class, $result);
+        $this->assertIsObject($result);
         $this->assertSame('/var/log/extends/' . date('Y-m-d') . '.log', Buffer::getFilename());
         $this->assertSame(
             '2017-10-13T14:50:28+00:00 CRIT (2): Exceptional error! {"foo":"bar"}' . PHP_EOL,
@@ -118,7 +119,7 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
-     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators())
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLogFormat()
@@ -186,14 +187,18 @@ class FileWriterTest extends TestCase
          * @var FilterInterface    $filter
          * @var DecoratorInterface $decorator
          */
-        $writer = new FileWriter('/var/log/extends', 'd-m-Y', '{keyword} ({value}): {message} {metaData}, {datetime}',
-            "\n\r");
+        $writer = new FileWriter(
+            '/var/log/extends',
+            'd-m-Y',
+            '{keyword} ({value}): {message} {metaData}, {datetime}',
+            "\n\r"
+        );
         $result = $writer
             ->addFilter($filter)
             ->addDecorator($decorator)
             ->write($log);
 
-        $this->assertInstanceOf(WriterInterface::class, $result);
+        $this->assertIsObject($result);
         $this->assertSame('/var/log/extends/' . date('d-m-Y') . '.log', Buffer::getFilename());
         $this->assertSame(
             'CRIT (2): Exceptional error! {"foo":"bar"}, 2017-10-13T14:50:28+00:00' . "\n\r",
@@ -212,7 +217,7 @@ class FileWriterTest extends TestCase
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addFilter()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::addDecorator()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
-     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators())
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
      * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
      * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getLogFormat()
@@ -246,7 +251,7 @@ class FileWriterTest extends TestCase
             ->addFilter($filter)
             ->write($log);
 
-        $this->assertInstanceOf(WriterInterface::class, $result);
+        $this->assertIsObject($result);
         $this->assertNull(Buffer::getFilename());
         $this->assertNull(Buffer::getValue());
 
@@ -258,20 +263,21 @@ class FileWriterTest extends TestCase
      *
      * Test that when writing to file fails and exception will be thrown.
      *
-     * @covers                   \ExtendsFramework\Logger\Writer\File\FileWriter::__construct()
-     * @covers                   \ExtendsFramework\Logger\Writer\File\FileWriter::write()
-     * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
-     * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()
-     * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
-     * @covers                   \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators())
-     * @covers                   \ExtendsFramework\Logger\Writer\File\FileWriter::getFormattedMessage()
-     * @covers                   \ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed::__construct()
-     * @expectedException        \ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed
-     * @expectedExceptionMessage Failed to write message "2017-10-13T14:50:28+00:00 CRIT (2): Exceptional error!
-     *                           {"foo":"bar"}" to file "application.log".
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::__construct()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::write()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::filter()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::decorate()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getFilters()
+     * @covers \ExtendsFramework\Logger\Writer\AbstractWriter::getDecorators()
+     * @covers \ExtendsFramework\Logger\Writer\File\FileWriter::getFormattedMessage()
+     * @covers \ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed::__construct()
      */
     public function testWriteFailed(): void
     {
+        $this->expectException(FileWriterFailed::class);
+        $this->expectExceptionMessage('Failed to write message "2017-10-13T14:50:28+00:00 CRIT (2): Exceptional error! '
+            . '{"foo":"bar"}" to file "/var/log/extends/'. date('Y-m-d') . '.log".');
+
         Buffer::setValue(''); // Set empty string for fwrite to return false.
 
         $priority = $this->createMock(PriorityInterface::class);
@@ -367,39 +373,9 @@ class FileWriterTest extends TestCase
     }
 }
 
-class Buffer
-{
-    protected static $filename;
-
-    protected static $value;
-
-    public static function getFilename(): ?string
-    {
-        return self::$filename;
-    }
-
-    public static function setFilename($filename): void
-    {
-        self::$filename = $filename;
-    }
-
-    public static function getValue(): ?string
-    {
-        return self::$value;
-    }
-
-    public static function setValue(string $value): void
-    {
-        static::$value .= $value;
-    }
-
-    public static function reset(): void
-    {
-        static::$value = null;
-        static::$filename = null;
-    }
-}
-
+/**
+ * @return bool
+ */
 function fwrite(): bool
 {
     if (Buffer::getValue() === '') {

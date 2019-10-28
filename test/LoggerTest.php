@@ -37,7 +37,7 @@ class LoggerTest extends TestCase
                 $this->assertSame($priority, $log->getPriority());
                 $this->assertSame(['foo' => 'bar'], $log->getMetaData());
 
-                return $this;
+                return true;
             }));
 
         /**
@@ -127,35 +127,11 @@ class LoggerTest extends TestCase
     }
 }
 
-class Buffer
-{
-    protected static $priority;
-
-    protected static $message;
-
-    public static function getMessage(): string
-    {
-        return static::$message;
-    }
-
-    public static function getPriority(): int
-    {
-        return static::$priority;
-    }
-
-    public static function set(int $priority, string $message): void
-    {
-        static::$priority = $priority;
-        static::$message = $message;
-    }
-
-    public static function reset(): void
-    {
-        static::$priority = null;
-        static::$message = null;
-    }
-}
-
+/**
+ * @param int    $priority
+ * @param string $message
+ * @return bool
+ */
 function syslog(int $priority, string $message): bool
 {
     Buffer::set($priority, $message);

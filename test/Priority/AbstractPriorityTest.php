@@ -27,30 +27,3 @@ class AbstractPriorityTest extends TestCase
         $this->assertInstanceOf(PriorityInterface::class, $priority);
     }
 }
-
-class PriorityStub extends AbstractPriority
-{
-    /**
-     * @inheritDoc
-     */
-    public function getValue(): int
-    {
-        return 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getKeyword(): string
-    {
-        return '';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getDescription(): string
-    {
-        return '';
-    }
-}

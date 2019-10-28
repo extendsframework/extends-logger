@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger;
 
-use DateTime;
-use ExtendsFramework\Logger\Priority\PriorityInterface;
 use PHPUnit\Framework\TestCase;
 
 class LogTest extends TestCase
@@ -25,8 +23,8 @@ class LogTest extends TestCase
         $log = new Log('Error!');
 
         $this->assertSame('Error!', $log->getMessage());
-        $this->assertInstanceOf(PriorityInterface::class, $log->getPriority());
-        $this->assertInstanceOf(DateTime::class, $log->getDateTime());
+        $this->assertIsObject($log->getPriority());
+        $this->assertIsObject($log->getDateTime());
         $this->assertSame([], $log->getMetaData());
     }
 
@@ -53,7 +51,7 @@ class LogTest extends TestCase
             ]);
 
         $this->assertNotSame($log, $instance);
-        $this->assertInstanceOf(LogInterface::class, $instance);
+        $this->assertIsObject($instance);
         $this->assertSame('Exception!', $instance->getMessage());
         $this->assertSame(['bar' => 'baz'], $instance->getMetaData());
     }
@@ -75,7 +73,7 @@ class LogTest extends TestCase
         $instance = $log->andMetaData('bar', 'baz');
 
         $this->assertNotSame($log, $instance);
-        $this->assertInstanceOf(LogInterface::class, $instance);
+        $this->assertIsObject($instance);
         $this->assertSame(['foo' => 'bar', 'bar' => 'baz'], $instance->getMetaData());
     }
 }

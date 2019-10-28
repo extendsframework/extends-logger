@@ -25,7 +25,6 @@ class BacktraceDecoratorTest extends TestCase
     {
         $log = $this->createMock(LogInterface::class);
         $log
-            ->expects($this->any())
             ->method('andMetaData')
             ->with('file');
 

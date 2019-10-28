@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Framework\Http\Middleware\Logger;
 
-use Exception;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
@@ -42,7 +41,7 @@ class LoggerMiddlewareTest extends TestCase
         $middleware = new LoggerMiddleware($logger);
         $response = $middleware->process($request, $chain);
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertIsObject($response);
     }
 
     /**
@@ -50,14 +49,15 @@ class LoggerMiddlewareTest extends TestCase
      *
      * Test that exception will be caught and message will be logged.
      *
-     * @covers                   \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::__construct()
-     * @covers                   \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::process()
-     * @covers                   \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::getLogger()
-     * @expectedException        \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\MiddlewareExceptionStub
-     * @expectedExceptionMessage Fancy exception message!
+     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::__construct()
+     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::process()
+     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::getLogger()
      */
     public function testLog(): void
     {
+        $this->expectException(MiddlewareExceptionStub::class);
+        $this->expectExceptionMessage('Fancy exception message!');
+
         $logger = $this->createMock(LoggerInterface::class);
         $logger
             ->expects($this->once())
@@ -81,8 +81,4 @@ class LoggerMiddlewareTest extends TestCase
         $middleware = new LoggerMiddleware($logger);
         $middleware->process($request, $chain);
     }
-}
-
-class MiddlewareExceptionStub extends Exception
-{
 }

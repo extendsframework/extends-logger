@@ -8,6 +8,8 @@ use ExtendsFramework\Logger\Decorator\DecoratorInterface;
 use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
+use ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError;
+use ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithException;
 use ExtendsFramework\Logger\Writer\WriterInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PDO;
@@ -83,11 +85,14 @@ class PdoWriterTest extends TestCase
             ])
             ->willReturn(true);
 
+        $query = 'INSERT INTO log (value, keyword, date_time, message, meta_data) ' .
+            'VALUES (:value, :keyword, :date_time, :message, :meta_data)';
+
         $pdo = $this->createMock(PDO::class);
         $pdo
             ->expects($this->once())
             ->method('prepare')
-            ->with('INSERT INTO log (value, keyword, date_time, message, meta_data) VALUES (:value, :keyword, :date_time, :message, :meta_data)')
+            ->with($query)
             ->willReturn($statement);
 
         /**
@@ -139,7 +144,7 @@ class PdoWriterTest extends TestCase
          * @var PDO          $pdo
          * @var LogInterface $log
          */
-        $writer = new PdoWriter($pdo, 'SQL QUERY', function (LogInterface $log) {
+        $writer = new PdoWriter($pdo, 'SQL QUERY', static function (LogInterface $log) {
             return [
                 'message' => $log->getMessage(),
             ];
@@ -152,20 +157,22 @@ class PdoWriterTest extends TestCase
      *
      * Test that exception is caught when PDO in exception mode.
      *
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::__construct()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::write()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getStatement()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getPdo()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getQueryString()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getParameters()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getCallback()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithException::__construct()
-     * @expectedException        \ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithException
-     * @expectedExceptionMessage Failed to write message "Exceptional error!" to PDO. See previous exception for
-     *                           details.
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::__construct()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::write()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getStatement()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getPdo()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getQueryString()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getParameters()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getCallback()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithException::__construct()
      */
     public function testFailedWithException(): void
     {
+        $this->expectException(StatementFailedWithException::class);
+        $this->expectExceptionMessage(
+            'Failed to write message "Exceptional error!" to PDO. See previous exception for details.'
+        );
+
         $log = $this->createMock(LogInterface::class);
         $log
             ->expects($this->exactly(2))
@@ -197,7 +204,7 @@ class PdoWriterTest extends TestCase
          * @var PDO          $pdo
          * @var LogInterface $log
          */
-        $writer = new PdoWriter($pdo, 'SQL QUERY', function (LogInterface $log) {
+        $writer = new PdoWriter($pdo, 'SQL QUERY', static function (LogInterface $log) {
             return [
                 'message' => $log->getMessage(),
             ];
@@ -210,19 +217,20 @@ class PdoWriterTest extends TestCase
      *
      * Test that error is triggered when PDO in silent mode.
      *
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::__construct()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::write()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getStatement()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getPdo()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getQueryString()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getParameters()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getCallback()
-     * @covers                   \ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError::__construct()
-     * @expectedException        \ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError
-     * @expectedExceptionMessage Failed to write message "Exceptional error!" to PDO, got error code "42S02"
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::__construct()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::write()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getStatement()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getPdo()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getQueryString()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getParameters()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getCallback()
+     * @covers \ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError::__construct()
      */
     public function testFailedWithError(): void
     {
+        $this->expectException(StatementFailedWithError::class);
+        $this->expectExceptionMessage('Failed to write message "Exceptional error!" to PDO, got error code "42S02"');
+
         $log = $this->createMock(LogInterface::class);
         $log
             ->expects($this->exactly(2))
@@ -254,7 +262,7 @@ class PdoWriterTest extends TestCase
          * @var PDO          $pdo
          * @var LogInterface $log
          */
-        $writer = new PdoWriter($pdo, 'SQL QUERY', function (LogInterface $log) {
+        $writer = new PdoWriter($pdo, 'SQL QUERY', static function (LogInterface $log) {
             return [
                 'message' => $log->getMessage(),
             ];
@@ -291,7 +299,7 @@ class PdoWriterTest extends TestCase
          */
         $writer = PdoWriter::factory(PdoWriter::class, $serviceLocator, [
             'query_string' => '',
-            'callback' => function () {
+            'callback' => static function () {
             },
             'filters' => [
                 [
