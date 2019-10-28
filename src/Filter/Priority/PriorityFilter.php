@@ -19,14 +19,14 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
      *
      * @var PriorityInterface
      */
-    protected $priority;
+    private $priority;
 
     /**
      * Comparison operator.
      *
      * @var ValidatorInterface
      */
-    protected $validator;
+    private $validator;
 
     /**
      * Create new priority filter.
@@ -78,7 +78,7 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
      *
      * @return PriorityInterface
      */
-    protected function getPriority(): PriorityInterface
+    private function getPriority(): PriorityInterface
     {
         if ($this->priority === null) {
             $this->priority = new CriticalPriority();
@@ -92,7 +92,7 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
      *
      * @return ValidatorInterface
      */
-    protected function getValidator(): ValidatorInterface
+    private function getValidator(): ValidatorInterface
     {
         if ($this->validator === null) {
             $this->validator = new GreaterThanValidator(

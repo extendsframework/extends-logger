@@ -17,7 +17,7 @@ class LoggerMiddleware implements MiddlewareInterface
      *
      * @var LoggerInterface
      */
-    protected $logger;
+    private $logger;
 
     /**
      * LoggerMiddleware constructor.
@@ -50,7 +50,7 @@ class LoggerMiddleware implements MiddlewareInterface
      *
      * @return LoggerInterface
      */
-    protected function getLogger(): LoggerInterface
+    private function getLogger(): LoggerInterface
     {
         return $this->logger;
     }

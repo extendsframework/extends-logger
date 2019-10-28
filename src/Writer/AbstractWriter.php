@@ -15,14 +15,14 @@ abstract class AbstractWriter implements WriterInterface, StaticFactoryInterface
      *
      * @var FilterInterface[]
      */
-    protected $filters = [];
+    private $filters = [];
 
     /**
      * Decorators.
      *
      * @var DecoratorInterface[]
      */
-    protected $decorators = [];
+    private $decorators = [];
 
     /**
      * Add filter.
@@ -87,7 +87,7 @@ abstract class AbstractWriter implements WriterInterface, StaticFactoryInterface
      *
      * @return FilterInterface[]
      */
-    protected function getFilters(): array
+    private function getFilters(): array
     {
         return $this->filters;
     }
@@ -97,7 +97,7 @@ abstract class AbstractWriter implements WriterInterface, StaticFactoryInterface
      *
      * @return DecoratorInterface[]
      */
-    protected function getDecorators(): array
+    private function getDecorators(): array
     {
         return $this->decorators;
     }

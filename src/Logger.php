@@ -14,7 +14,7 @@ class Logger implements LoggerInterface
      *
      * @var LoggerWriter[]
      */
-    protected $writers = [];
+    private $writers = [];
 
     /**
      * @inheritDoc
@@ -61,7 +61,7 @@ class Logger implements LoggerInterface
      * @param array|null             $metaData
      * @return LogInterface
      */
-    protected function getLog(string $message, PriorityInterface $priority = null, array $metaData = null): LogInterface
+    private function getLog(string $message, PriorityInterface $priority = null, array $metaData = null): LogInterface
     {
         return new Log($message, $priority ?? null, null, $metaData ?? null);
     }
@@ -71,7 +71,7 @@ class Logger implements LoggerInterface
      *
      * @return LoggerWriter[]
      */
-    protected function getWriters(): array
+    private function getWriters(): array
     {
         return $this->writers;
     }

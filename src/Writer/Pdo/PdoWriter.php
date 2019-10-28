@@ -22,21 +22,21 @@ class PdoWriter extends AbstractWriter
      *
      * @var PDO
      */
-    protected $pdo;
+    private $pdo;
 
     /**
      * PDO query string.
      *
      * @var string|null
      */
-    protected $queryString;
+    private $queryString;
 
     /**
      * Parameter callback.
      *
      * @var callable|null
      */
-    protected $callback;
+    private $callback;
 
     /**
      * PdoWriter constructor.
@@ -117,7 +117,7 @@ class PdoWriter extends AbstractWriter
      *
      * @return PDOStatement
      */
-    protected function getStatement(): PDOStatement
+    private function getStatement(): PDOStatement
     {
         return $this
             ->getPdo()
@@ -130,7 +130,7 @@ class PdoWriter extends AbstractWriter
      * @param LogInterface $log
      * @return array
      */
-    protected function getParameters(LogInterface $log): array
+    private function getParameters(LogInterface $log): array
     {
         $callback = $this->getCallback();
 
@@ -142,7 +142,7 @@ class PdoWriter extends AbstractWriter
      *
      * @return callable
      */
-    protected function getCallback(): callable
+    private function getCallback(): callable
     {
         if ($this->callback === null) {
             $this->callback = function (LogInterface $log): array {
@@ -171,7 +171,7 @@ class PdoWriter extends AbstractWriter
      *
      * @return string
      */
-    protected function getQueryString(): string
+    private function getQueryString(): string
     {
         if ($this->queryString === null) {
             $this->queryString = 'INSERT INTO log (value, keyword, date_time, message, meta_data)' .
@@ -186,7 +186,7 @@ class PdoWriter extends AbstractWriter
      *
      * @return PDO
      */
-    protected function getPdo(): PDO
+    private function getPdo(): PDO
     {
         return $this->pdo;
     }

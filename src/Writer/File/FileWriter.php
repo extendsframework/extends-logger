@@ -18,28 +18,28 @@ class FileWriter extends AbstractWriter
      *
      * @var string
      */
-    protected $location;
+    private $location;
 
     /**
      * File format for date function.
      *
      * @var string
      */
-    protected $fileFormat;
+    private $fileFormat;
 
     /**
      * Log message format.
      *
      * @var string
      */
-    protected $logFormat;
+    private $logFormat;
 
     /**
      * End of line character.
      *
      * @var string
      */
-    protected $newLine;
+    private $newLine;
 
     /**
      * FileWriter constructor.
@@ -121,7 +121,7 @@ class FileWriter extends AbstractWriter
      * @param LogInterface $log
      * @return string
      */
-    protected function getFormattedMessage(LogInterface $log): string
+    private function getFormattedMessage(LogInterface $log): string
     {
         $metaData = $log->getMetaData() ?: null;
         if (is_array($metaData)) {
@@ -145,7 +145,7 @@ class FileWriter extends AbstractWriter
      *
      * @return string
      */
-    protected function getFileName(): string
+    private function getFileName(): string
     {
         return sprintf(
             '%s/%s.log',
@@ -159,7 +159,7 @@ class FileWriter extends AbstractWriter
      *
      * @return string
      */
-    protected function getLogFormat(): string
+    private function getLogFormat(): string
     {
         if ($this->logFormat === null) {
             $this->logFormat = '{datetime} {keyword} ({value}): {message} {metaData}';
@@ -173,7 +173,7 @@ class FileWriter extends AbstractWriter
      *
      * @return string
      */
-    protected function getNewLine(): string
+    private function getNewLine(): string
     {
         if ($this->newLine === null) {
             $this->newLine = PHP_EOL;
@@ -187,7 +187,7 @@ class FileWriter extends AbstractWriter
      *
      * @return string|null
      */
-    protected function getLocation(): ?string
+    private function getLocation(): ?string
     {
         return $this->location;
     }
@@ -197,7 +197,7 @@ class FileWriter extends AbstractWriter
      *
      * @return string|null
      */
-    protected function getFileFormat(): ?string
+    private function getFileFormat(): ?string
     {
         return $this->fileFormat ?? 'Y-m-d';
     }

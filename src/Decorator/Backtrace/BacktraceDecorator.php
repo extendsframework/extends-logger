@@ -15,7 +15,7 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
      *
      * @var int|null
      */
-    protected $limit;
+    private $limit;
 
     /**
      * Create backtrace decorator.
@@ -59,7 +59,7 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
      *
      * @return array
      */
-    protected function getBacktrace(): array
+    private function getBacktrace(): array
     {
         return debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $this->getLimit());
     }
@@ -69,7 +69,7 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
      *
      * @return int
      */
-    protected function getLimit(): int
+    private function getLimit(): int
     {
         if ($this->limit === null) {
             $this->limit = 6;

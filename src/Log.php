@@ -14,28 +14,28 @@ class Log implements LogInterface
      *
      * @var string
      */
-    protected $message;
+    private $message;
 
     /**
      * Log priority.
      *
      * @var PriorityInterface
      */
-    protected $priority;
+    private $priority;
 
     /**
      * Datetime when log happened.
      *
      * @var DateTime
      */
-    protected $datetime;
+    private $datetime;
 
     /**
      * Extra meta data.
      *
      * @var array
      */
-    protected $metaData;
+    private $metaData;
 
     /**
      * Create new log.

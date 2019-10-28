@@ -12,14 +12,14 @@ class LoggerWriter
      *
      * @var WriterInterface
      */
-    protected $writer;
+    private $writer;
 
     /**
      * Whether or not the logger must be stopped.
      *
      * @var bool
      */
-    protected $interrupt;
+    private $interrupt;
 
     /**
      * Create new logger writer.s

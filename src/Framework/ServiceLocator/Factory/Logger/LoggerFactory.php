@@ -39,7 +39,7 @@ class LoggerFactory implements ServiceFactoryInterface
      * @return WriterInterface
      * @throws ServiceLocatorException
      */
-    protected function getWriter(ServiceLocatorInterface $serviceLocator, string $name, array $options): object
+    private function getWriter(ServiceLocatorInterface $serviceLocator, string $name, array $options): object
     {
         return $serviceLocator->getService($name, $options);
     }
