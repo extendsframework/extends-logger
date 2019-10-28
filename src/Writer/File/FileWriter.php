@@ -24,21 +24,21 @@ class FileWriter extends AbstractWriter
     /**
      * File format for date function.
      *
-     * @var string
+     * @var string|null
      */
     private $fileFormat;
 
     /**
      * Log message format.
      *
-     * @var string
+     * @var string|null
      */
     private $logFormat;
 
     /**
      * End of line character.
      *
-     * @var string
+     * @var string|null
      */
     private $newLine;
 
@@ -182,9 +182,9 @@ class FileWriter extends AbstractWriter
     /**
      * Get location.
      *
-     * @return string|null
+     * @return string
      */
-    private function getLocation(): ?string
+    private function getLocation(): string
     {
         return $this->location;
     }
