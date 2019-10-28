@@ -19,10 +19,9 @@ class LoggerFactory implements ServiceFactoryInterface
     public function createService(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
         $config = $serviceLocator->getConfig();
-        $config = $config[LoggerInterface::class] ?? [];
 
         $logger = new Logger();
-        foreach ($config['writers'] ?? [] as $writer) {
+        foreach ($config[LoggerInterface::class]['writers'] ?? [] as $writer) {
             $logger->addWriter(
                 $this->getWriter($serviceLocator, $writer['name'], $writer['options'] ?? [])
             );
