@@ -10,6 +10,7 @@ use ExtendsFramework\Logger\Writer\AbstractWriter;
 use ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError;
 use ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithException;
 use ExtendsFramework\Logger\Writer\WriterInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorException;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PDO;
 use PDOException;
@@ -54,29 +55,7 @@ class PdoWriter extends AbstractWriter
 
     /**
      * @inheritDoc
-     */
-    public function write(LogInterface $log): WriterInterface
-    {
-        if (!$this->filter($log)) {
-            $log = $this->decorate($log);
-
-            $statement = $this->getStatement();
-            try {
-                $result = $statement->execute($this->getParameters($log));
-            } catch (PDOException $exception) {
-                throw new StatementFailedWithException($exception, $log->getMessage());
-            }
-
-            if (!$result) {
-                throw new StatementFailedWithError($statement->errorCode(), $log->getMessage());
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
+     * @throws ServiceLocatorException
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
@@ -113,6 +92,29 @@ class PdoWriter extends AbstractWriter
     }
 
     /**
+     * @inheritDoc
+     */
+    public function write(LogInterface $log): WriterInterface
+    {
+        if (!$this->filter($log)) {
+            $log = $this->decorate($log);
+
+            $statement = $this->getStatement();
+            try {
+                $result = $statement->execute($this->getParameters($log));
+            } catch (PDOException $exception) {
+                throw new StatementFailedWithException($exception, $log->getMessage());
+            }
+
+            if (!$result) {
+                throw new StatementFailedWithError($statement->errorCode(), $log->getMessage());
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Get statement to execute.s
      *
      * @return PDOStatement
@@ -145,7 +147,7 @@ class PdoWriter extends AbstractWriter
     private function getCallback(): callable
     {
         if ($this->callback === null) {
-            $this->callback = function (LogInterface $log): array {
+            $this->callback = static function (LogInterface $log): array {
                 $metaData = $log->getMetaData() ?: null;
                 if (is_array($metaData)) {
                     $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_SLASHES);
@@ -156,7 +158,9 @@ class PdoWriter extends AbstractWriter
                 return [
                     'value' => $priority->getValue(),
                     'keyword' => strtoupper($priority->getKeyword()),
-                    'date_time' => $log->getDateTime()->format('Y-m-d H:i:s'),
+                    'date_time' => $log
+                        ->getDateTime()
+                        ->format('Y-m-d H:i:s'),
                     'message' => $log->getMessage(),
                     'meta_data' => $metaData,
                 ];
@@ -174,8 +178,9 @@ class PdoWriter extends AbstractWriter
     private function getQueryString(): string
     {
         if ($this->queryString === null) {
-            $this->queryString = 'INSERT INTO log (value, keyword, date_time, message, meta_data)' .
-                ' VALUES (:value, :keyword, :date_time, :message, :meta_data)';
+            $this->queryString = '
+                INSERT INTO log (value, keyword, date_time, message, meta_data)
+                VALUES (:value, :keyword, :date_time, :message, :meta_data)';
         }
 
         return $this->queryString;

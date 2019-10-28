@@ -8,6 +8,7 @@ use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Priority\Critical\CriticalPriority;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
 use ExtendsFramework\ServiceLocator\Resolver\StaticFactory\StaticFactoryInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorException;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use ExtendsFramework\Validator\Comparison\GreaterThanValidator;
 use ExtendsFramework\Validator\ValidatorInterface;
@@ -32,12 +33,37 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
      * Create new priority filter.
      *
      * @param PriorityInterface|null  $priority
-     * @param ValidatorInterface|null $constraint
+     * @param ValidatorInterface|null $validator
      */
-    public function __construct(PriorityInterface $priority = null, ValidatorInterface $constraint = null)
+    public function __construct(PriorityInterface $priority = null, ValidatorInterface $validator = null)
     {
         $this->priority = $priority;
-        $this->validator = $constraint;
+        $this->validator = $validator;
+    }
+
+    /**
+     * @inheritDoc
+     * @throws ServiceLocatorException
+     */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
+    {
+        if (array_key_exists('priority', $extra)) {
+            /** @var PriorityInterface $priority */
+            $priority = $serviceLocator->getService($extra['priority']['name'], $extra['priority']['options'] ?? []);
+        }
+
+        if (array_key_exists('validator', $extra)) {
+            /** @var ValidatorInterface $validator */
+            $validator = $serviceLocator->getService(
+                $extra['validator']['name'],
+                $extra['validator']['options'] ?? []
+            );
+        }
+
+        return new static(
+            $priority ?? null,
+            $validator ?? null
+        );
     }
 
     /**
@@ -46,31 +72,13 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
     public function filter(LogInterface $log): bool
     {
         return $this
-                ->getValidator()
-                ->validate($log->getPriority()->getValue())
-                ->isValid();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
-    {
-        if (array_key_exists('priority', $extra)) {
-            $priority = $serviceLocator->getService($extra['priority']['name'], $extra['priority']['options'] ?? []);
-        }
-
-        if (array_key_exists('validator', $extra)) {
-            $constraint = $serviceLocator->getService(
-                $extra['validator']['name'],
-                $extra['validator']['options'] ?? []
-            );
-        }
-
-        return new static(
-            $priority ?? null,
-            $constraint ?? null
-        );
+            ->getValidator()
+            ->validate(
+                $log
+                    ->getPriority()
+                    ->getValue()
+            )
+            ->isValid();
     }
 
     /**
@@ -96,7 +104,9 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
     {
         if ($this->validator === null) {
             $this->validator = new GreaterThanValidator(
-                $this->getPriority()->getValue()
+                $this
+                    ->getPriority()
+                    ->getValue()
             );
         }
 

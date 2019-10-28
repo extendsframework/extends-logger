@@ -31,6 +31,7 @@ class LoggerMiddleware implements MiddlewareInterface
 
     /**
      * @inheritDoc
+     * @throws Throwable
      */
     public function process(RequestInterface $request, MiddlewareChainInterface $chain): ResponseInterface
     {

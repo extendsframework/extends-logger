@@ -14,6 +14,7 @@ class LoggerFactory implements ServiceFactoryInterface
 {
     /**
      * @inheritDoc
+     * @throws ServiceLocatorException
      */
     public function createService(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {

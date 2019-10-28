@@ -9,6 +9,7 @@ use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Writer\AbstractWriter;
 use ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed;
 use ExtendsFramework\Logger\Writer\WriterInterface;
+use ExtendsFramework\ServiceLocator\ServiceLocatorException;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 
 class FileWriter extends AbstractWriter
@@ -63,27 +64,7 @@ class FileWriter extends AbstractWriter
 
     /**
      * @inheritDoc
-     */
-    public function write(LogInterface $log): WriterInterface
-    {
-        if (!$this->filter($log)) {
-            $log = $this->decorate($log);
-            $message = $this->getFormattedMessage($log);
-            $filename = $this->getFileName();
-
-            $handle = fopen($filename, 'ab');
-            if (fwrite($handle, $message . $this->getNewLine()) === false) {
-                throw new FileWriterFailed($message, $filename);
-            }
-
-            fclose($handle);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
+     * @throws ServiceLocatorException
      */
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
@@ -116,6 +97,27 @@ class FileWriter extends AbstractWriter
     }
 
     /**
+     * @inheritDoc
+     */
+    public function write(LogInterface $log): WriterInterface
+    {
+        if (!$this->filter($log)) {
+            $log = $this->decorate($log);
+            $message = $this->getFormattedMessage($log);
+            $filename = $this->getFileName();
+
+            $handle = fopen($filename, 'ab');
+            if (fwrite($handle, $message . $this->getNewLine()) === false) {
+                throw new FileWriterFailed($message, $filename);
+            }
+
+            fclose($handle);
+        }
+
+        return $this;
+    }
+
+    /**
      * Get formatted message for $log.
      *
      * @param LogInterface $log
@@ -130,7 +132,8 @@ class FileWriter extends AbstractWriter
 
         $priority = $log->getPriority();
         $replacePairs = [
-            '{datetime}' => $log->getDateTime()->format(DATE_ATOM),
+            '{datetime}' => $log->getDateTime()
+                ->format(DATE_ATOM),
             '{keyword}' => strtoupper($priority->getKeyword()),
             '{value}' => $priority->getValue(),
             '{message}' => $log->getMessage(),

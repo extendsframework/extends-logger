@@ -30,6 +30,14 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
     /**
      * @inheritDoc
      */
+    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
+    {
+        return new static();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function decorate(LogInterface $log): LogInterface
     {
         $backtrace = $this->getBacktrace();
@@ -42,14 +50,6 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
         }
 
         return $log;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
-    {
-        return new static();
     }
 
     /**

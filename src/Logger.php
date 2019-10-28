@@ -24,7 +24,8 @@ class Logger implements LoggerInterface
         $log = $this->getLog($message, $priority, $metaData);
         foreach ($this->getWriters() as $writer) {
             try {
-                $writer->getWriter()->write($log);
+                $writer->getWriter()
+                    ->write($log);
                 if ($writer->mustInterrupt()) {
                     break;
                 }
