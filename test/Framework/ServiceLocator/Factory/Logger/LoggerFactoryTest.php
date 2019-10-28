@@ -16,6 +16,7 @@ class LoggerFactoryTest extends TestCase
      * Test that factory will return an instance of LoggerInterface.
      *
      * @covers \ExtendsFramework\Logger\Framework\ServiceLocator\Factory\Logger\LoggerFactory::createService()
+     * @covers \ExtendsFramework\Logger\Framework\ServiceLocator\Factory\Logger\LoggerFactory::getWriter()
      */
     public function testCreateService(): void
     {
