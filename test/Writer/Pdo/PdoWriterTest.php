@@ -85,6 +85,8 @@ class PdoWriterTest extends TestCase
             ])
             ->willReturn(true);
 
+        /** @noinspection SqlNoDataSourceInspection */
+        /** @noinspection SqlResolve */
         $query = 'INSERT INTO log (value, keyword, date_time, message, meta_data) ' .
             'VALUES (:value, :keyword, :date_time, :message, :meta_data)';
 
