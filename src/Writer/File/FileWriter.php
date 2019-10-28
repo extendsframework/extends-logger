@@ -76,20 +76,14 @@ class FileWriter extends AbstractWriter
         );
 
         foreach ($extra['filters'] ?? [] as $filter) {
+            /** @var FilterInterface $service */
             $service = $serviceLocator->getService($filter['name'], $filter['options'] ?? []);
-
-            /**
-             * @var FilterInterface $service
-             */
             $writer->addFilter($service);
         }
 
         foreach ($extra['decorators'] ?? [] as $decorator) {
+            /** @var DecoratorInterface $service */
             $service = $serviceLocator->getService($decorator['name'], $decorator['options'] ?? []);
-
-            /**
-             * @var DecoratorInterface $service
-             */
             $writer->addDecorator($service);
         }
 
@@ -202,6 +196,10 @@ class FileWriter extends AbstractWriter
      */
     private function getFileFormat(): ?string
     {
-        return $this->fileFormat ?? 'Y-m-d';
+        if ($this->fileFormat === null) {
+            $this->fileFormat = 'Y-m-d';
+        }
+
+        return $this->fileFormat;
     }
 }
