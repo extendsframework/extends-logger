@@ -23,10 +23,11 @@ class Logger implements LoggerInterface
      */
     public function log(string $message, PriorityInterface $priority = null, array $metaData = null): LoggerInterface
     {
-        $log = $this->getLog($message, $priority, $metaData);
-        foreach ($this->getWriters() as $writer) {
+        $log = new Log($message, $priority ?? null, null, $metaData ?? null);
+        foreach ($this->writers as $writer) {
             try {
-                $writer->getWriter()
+                $writer
+                    ->getWriter()
                     ->write($log);
                 if ($writer->mustInterrupt()) {
                     break;
@@ -54,29 +55,5 @@ class Logger implements LoggerInterface
         $this->writers[] = new LoggerWriter($writer, $interrupt ?: false);
 
         return $this;
-    }
-
-    /**
-     * Get new log.
-     *
-     * @param string                 $message
-     * @param PriorityInterface|null $priority
-     * @param array|null             $metaData
-     * @return LogInterface
-     * @throws Exception
-     */
-    private function getLog(string $message, PriorityInterface $priority = null, array $metaData = null): LogInterface
-    {
-        return new Log($message, $priority ?? null, null, $metaData ?? null);
-    }
-
-    /**
-     * Get writers.
-     *
-     * @return LoggerWriter[]
-     */
-    private function getWriters(): array
-    {
-        return $this->writers;
     }
 }
