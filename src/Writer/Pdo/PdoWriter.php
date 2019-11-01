@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Writer\Pdo;
 
-use ExtendsFramework\Logger\Decorator\DecoratorInterface;
-use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Writer\AbstractWriter;
 use ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError;
@@ -14,7 +12,6 @@ use ExtendsFramework\ServiceLocator\ServiceLocatorException;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
 use PDO;
 use PDOException;
-use PDOStatement;
 
 class PdoWriter extends AbstractWriter
 {
@@ -26,31 +23,22 @@ class PdoWriter extends AbstractWriter
     private $pdo;
 
     /**
-     * PDO query string.
+     * Database table.
      *
-     * @var string|null
+     * @var string
      */
-    private $queryString;
-
-    /**
-     * Parameter callback.
-     *
-     * @var callable|null
-     */
-    private $callback;
+    private $table;
 
     /**
      * PdoWriter constructor.
      *
-     * @param PDO           $pdo
-     * @param string|null   $queryString
-     * @param callable|null $callback
+     * @param PDO         $pdo
+     * @param string|null $table
      */
-    public function __construct(PDO $pdo, string $queryString = null, callable $callback = null)
+    public function __construct(PDO $pdo, string $table = null)
     {
         $this->pdo = $pdo;
-        $this->queryString = $queryString;
-        $this->callback = $callback;
+        $this->table = $table ?? 'log';
     }
 
     /**
@@ -66,26 +54,17 @@ class PdoWriter extends AbstractWriter
          */
         $writer = new static(
             $pdo,
-            $extra['query_string'] ?? null,
-            $extra['callback'] ?? null
+            $extra['table'] ?? null
         );
 
         foreach ($extra['filters'] ?? [] as $filter) {
-            $service = $serviceLocator->getService($filter['name'], $filter['options'] ?? []);
-
-            /**
-             * @var FilterInterface $service
-             */
-            $writer->addFilter($service);
+            /** @noinspection PhpParamsInspection */
+            $writer->addFilter($serviceLocator->getService($filter['name'], $filter['options'] ?? []));
         }
 
         foreach ($extra['decorators'] ?? [] as $decorator) {
-            $service = $serviceLocator->getService($decorator['name'], $decorator['options'] ?? []);
-
-            /**
-             * @var DecoratorInterface $service
-             */
-            $writer->addDecorator($service);
+            /** @noinspection PhpParamsInspection */
+            $writer->addDecorator($serviceLocator->getService($decorator['name'], $decorator['options'] ?? []));
         }
 
         return $writer;
@@ -99,9 +78,32 @@ class PdoWriter extends AbstractWriter
         if (!$this->filter($log)) {
             $log = $this->decorate($log);
 
-            $statement = $this->getStatement();
+            /** @noinspection SqlResolve */
+            /** @noinspection SqlNoDataSourceInspection */
+            $statement = $this->pdo->prepare(sprintf(
+                'INSERT INTO `%s` (`value`, `keyword`, `date_time`, `message`, `meta_data`) ' .
+                'VALUES (:value, :keyword, :date_time, :message, :meta_data)',
+                $this->table
+            ));
+
+            $metaData = $log->getMetaData() ?: null;
+            if (is_array($metaData)) {
+                $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_SLASHES);
+            }
+
+            $priority = $log->getPriority();
+            $parameters = [
+                'value' => $priority->getValue(),
+                'keyword' => strtoupper($priority->getKeyword()),
+                'date_time' => $log
+                    ->getDateTime()
+                    ->format('Y-m-d H:i:s'),
+                'message' => $log->getMessage(),
+                'meta_data' => $metaData,
+            ];
+
             try {
-                $result = $statement->execute($this->getParameters($log));
+                $result = $statement->execute($parameters);
             } catch (PDOException $exception) {
                 throw new StatementFailedWithException($exception, $log->getMessage());
             }
@@ -112,88 +114,5 @@ class PdoWriter extends AbstractWriter
         }
 
         return $this;
-    }
-
-    /**
-     * Get statement to execute.s
-     *
-     * @return PDOStatement
-     */
-    private function getStatement(): PDOStatement
-    {
-        return $this
-            ->getPdo()
-            ->prepare(trim($this->getQueryString()));
-    }
-
-    /**
-     * Get statement parameters.
-     *
-     * @param LogInterface $log
-     * @return array
-     */
-    private function getParameters(LogInterface $log): array
-    {
-        $callback = $this->getCallback();
-
-        return $callback($log);
-    }
-
-    /**
-     * Get parameter callback.
-     *
-     * @return callable
-     */
-    private function getCallback(): callable
-    {
-        if ($this->callback === null) {
-            $this->callback = static function (LogInterface $log): array {
-                $metaData = $log->getMetaData() ?: null;
-                if (is_array($metaData)) {
-                    $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_SLASHES);
-                }
-
-                $priority = $log->getPriority();
-
-                return [
-                    'value' => $priority->getValue(),
-                    'keyword' => strtoupper($priority->getKeyword()),
-                    'date_time' => $log
-                        ->getDateTime()
-                        ->format('Y-m-d H:i:s'),
-                    'message' => $log->getMessage(),
-                    'meta_data' => $metaData,
-                ];
-            };
-        }
-
-        return $this->callback;
-    }
-
-    /**
-     * Get statement query string.
-     *
-     * @return string
-     */
-    private function getQueryString(): string
-    {
-        if ($this->queryString === null) {
-            /** @noinspection SqlNoDataSourceInspection */
-            /** @noinspection SqlResolve */
-            $this->queryString = 'INSERT INTO log (value, keyword, date_time, message, meta_data) ' .
-                'VALUES (:value, :keyword, :date_time, :message, :meta_data)';
-        }
-
-        return $this->queryString;
-    }
-
-    /**
-     * Get pdo.
-     *
-     * @return PDO
-     */
-    private function getPdo(): PDO
-    {
-        return $this->pdo;
     }
 }

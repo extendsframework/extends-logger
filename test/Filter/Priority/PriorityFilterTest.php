@@ -20,8 +20,6 @@ class PriorityFilterTest extends TestCase
      *
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::__construct()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::filter()
-     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getValidator()
-     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getPriority()
      */
     public function testFilter(): void
     {
@@ -52,8 +50,6 @@ class PriorityFilterTest extends TestCase
      *
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::__construct()
      * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::filter()
-     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getValidator()
-     * @covers \ExtendsFramework\Logger\Filter\Priority\PriorityFilter::getPriority()
      */
     public function testDoNotFilter(): void
     {

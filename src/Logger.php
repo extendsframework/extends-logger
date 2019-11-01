@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger;
 
+use Exception;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
 use ExtendsFramework\Logger\Writer\WriterException;
 use ExtendsFramework\Logger\Writer\WriterInterface;
@@ -18,6 +19,7 @@ class Logger implements LoggerInterface
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function log(string $message, PriorityInterface $priority = null, array $metaData = null): LoggerInterface
     {
@@ -61,6 +63,7 @@ class Logger implements LoggerInterface
      * @param PriorityInterface|null $priority
      * @param array|null             $metaData
      * @return LogInterface
+     * @throws Exception
      */
     private function getLog(string $message, PriorityInterface $priority = null, array $metaData = null): LogInterface
     {

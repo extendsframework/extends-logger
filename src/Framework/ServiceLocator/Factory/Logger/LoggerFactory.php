@@ -5,7 +5,6 @@ namespace ExtendsFramework\Logger\Framework\ServiceLocator\Factory\Logger;
 
 use ExtendsFramework\Logger\Logger;
 use ExtendsFramework\Logger\LoggerInterface;
-use ExtendsFramework\Logger\Writer\WriterInterface;
 use ExtendsFramework\ServiceLocator\Resolver\Factory\ServiceFactoryInterface;
 use ExtendsFramework\ServiceLocator\ServiceLocatorException;
 use ExtendsFramework\ServiceLocator\ServiceLocatorInterface;
@@ -23,25 +22,12 @@ class LoggerFactory implements ServiceFactoryInterface
 
         $logger = new Logger();
         foreach ($config['writers'] ?? [] as $writer) {
+            /** @noinspection PhpParamsInspection */
             $logger->addWriter(
-                $this->getWriter($serviceLocator, $writer['name'], $writer['options'] ?? [])
+                $serviceLocator->getService($writer['name'], $writer['options'] ?? [])
             );
         }
 
         return $logger;
-    }
-
-    /**
-     * Get writer for name with options.
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string                  $name
-     * @param array                   $options
-     * @return WriterInterface
-     * @throws ServiceLocatorException
-     */
-    private function getWriter(ServiceLocatorInterface $serviceLocator, string $name, array $options): object
-    {
-        return $serviceLocator->getService($name, $options);
     }
 }

@@ -16,13 +16,6 @@ use ExtendsFramework\Validator\ValidatorInterface;
 class PriorityFilter implements FilterInterface, StaticFactoryInterface
 {
     /**
-     * Priority value to compare.
-     *
-     * @var PriorityInterface
-     */
-    private $priority;
-
-    /**
      * Comparison operator.
      *
      * @var ValidatorInterface
@@ -37,8 +30,7 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
      */
     public function __construct(PriorityInterface $priority = null, ValidatorInterface $validator = null)
     {
-        $this->priority = $priority;
-        $this->validator = $validator;
+        $this->validator = $validator ?: new GreaterThanValidator(($priority ?: new CriticalPriority())->getValue());
     }
 
     /**
@@ -48,18 +40,17 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
     public static function factory(string $key, ServiceLocatorInterface $serviceLocator, array $extra = null): object
     {
         if (array_key_exists('priority', $extra)) {
-            /** @var PriorityInterface $priority */
             $priority = $serviceLocator->getService($extra['priority']['name'], $extra['priority']['options'] ?? []);
         }
 
         if (array_key_exists('validator', $extra)) {
-            /** @var ValidatorInterface $validator */
             $validator = $serviceLocator->getService(
                 $extra['validator']['name'],
                 $extra['validator']['options'] ?? []
             );
         }
 
+        /** @noinspection PhpParamsInspection */
         return new static(
             $priority ?? null,
             $validator ?? null
@@ -71,45 +62,12 @@ class PriorityFilter implements FilterInterface, StaticFactoryInterface
      */
     public function filter(LogInterface $log): bool
     {
-        return $this
-            ->getValidator()
+        return $this->validator
             ->validate(
                 $log
                     ->getPriority()
                     ->getValue()
             )
             ->isValid();
-    }
-
-    /**
-     * Get priority.
-     *
-     * @return PriorityInterface
-     */
-    private function getPriority(): PriorityInterface
-    {
-        if ($this->priority === null) {
-            $this->priority = new CriticalPriority();
-        }
-
-        return $this->priority;
-    }
-
-    /**
-     * Get validator.
-     *
-     * @return ValidatorInterface
-     */
-    private function getValidator(): ValidatorInterface
-    {
-        if ($this->validator === null) {
-            $this->validator = new GreaterThanValidator(
-                $this
-                    ->getPriority()
-                    ->getValue()
-            );
-        }
-
-        return $this->validator;
     }
 }

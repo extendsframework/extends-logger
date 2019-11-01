@@ -22,15 +22,10 @@ class PdoWriterTest extends TestCase
     /**
      * Write.
      *
-     * Test that log will be written to PDO with default query string and parameters.
+     * Test that log will be written to default database table.
      *
      * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::write()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getStatement()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getPdo()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getQueryString()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getParameters()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getCallback()
      */
     public function testWrite(): void
     {
@@ -87,7 +82,7 @@ class PdoWriterTest extends TestCase
 
         /** @noinspection SqlNoDataSourceInspection */
         /** @noinspection SqlResolve */
-        $query = 'INSERT INTO log (value, keyword, date_time, message, meta_data) ' .
+        $query = 'INSERT INTO `log` (`value`, `keyword`, `date_time`, `message`, `meta_data`) ' .
             'VALUES (:value, :keyword, :date_time, :message, :meta_data)';
 
         $pdo = $this->createMock(PDO::class);
@@ -106,51 +101,83 @@ class PdoWriterTest extends TestCase
     }
 
     /**
-     * Custom query string.
+     * Write to custom table.
      *
-     * Test that log will be written to PDO with custom query string and parameters.
+     * Test that log will be written to custom database table.
      *
      * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::write()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getStatement()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getPdo()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getQueryString()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getParameters()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getCallback()
      */
-    public function testCustomQueryString(): void
+    public function testWriteCustomTable(): void
     {
+        $priority = $this->createMock(PriorityInterface::class);
+        $priority
+            ->expects($this->once())
+            ->method('getKeyword')
+            ->willReturn('crit');
+
+        $priority
+            ->expects($this->once())
+            ->method('getValue')
+            ->willReturn(2);
+
+        $dateTime = $this->createMock(DateTime::class);
+        $dateTime
+            ->expects($this->once())
+            ->method('format')
+            ->willReturn('2017-10-13 14:50:28');
+
         $log = $this->createMock(LogInterface::class);
+        $log
+            ->expects($this->once())
+            ->method('getMetaData')
+            ->willReturn(['foo' => 'bar']);
+
+        $log
+            ->expects($this->once())
+            ->method('getPriority')
+            ->willReturn($priority);
+
         $log
             ->expects($this->once())
             ->method('getMessage')
             ->willReturn('Exceptional error!');
+
+        $log
+            ->expects($this->once())
+            ->method('getDateTime')
+            ->willReturn($dateTime);
 
         $statement = $this->createMock(PDOStatement::class);
         $statement
             ->expects($this->once())
             ->method('execute')
             ->with([
+                'value' => 2,
+                'keyword' => 'CRIT',
+                'date_time' => '2017-10-13 14:50:28',
                 'message' => 'Exceptional error!',
+                'meta_data' => '{"foo":"bar"}',
             ])
             ->willReturn(true);
 
         $pdo = $this->createMock(PDO::class);
+        /** @noinspection SqlNoDataSourceInspection */
+        /** @noinspection SqlResolve */
         $pdo
             ->expects($this->once())
             ->method('prepare')
-            ->with('SQL QUERY')
+            ->with(
+                'INSERT INTO `custom_table` (`value`, `keyword`, `date_time`, `message`, `meta_data`) ' .
+                'VALUES (:value, :keyword, :date_time, :message, :meta_data)'
+            )
             ->willReturn($statement);
 
         /**
          * @var PDO          $pdo
          * @var LogInterface $log
          */
-        $writer = new PdoWriter($pdo, 'SQL QUERY', static function (LogInterface $log) {
-            return [
-                'message' => $log->getMessage(),
-            ];
-        });
+        $writer = new PdoWriter($pdo, 'custom_table');
         $writer->write($log);
     }
 
@@ -161,11 +188,6 @@ class PdoWriterTest extends TestCase
      *
      * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::write()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getStatement()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getPdo()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getQueryString()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getParameters()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getCallback()
      * @covers \ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithException::__construct()
      */
     public function testFailedWithException(): void
@@ -192,25 +214,30 @@ class PdoWriterTest extends TestCase
             ->method('execute')
             ->with([
                 'message' => 'Exceptional error!',
+                'value' => 0,
+                'keyword' => '',
+                'date_time' => null,
+                'meta_data' => null,
             ])
             ->willThrowException($exception);
 
         $pdo = $this->createMock(PDO::class);
+        /** @noinspection SqlNoDataSourceInspection */
+        /** @noinspection SqlResolve */
         $pdo
             ->expects($this->once())
             ->method('prepare')
-            ->with('SQL QUERY')
+            ->with(
+                'INSERT INTO `log` (`value`, `keyword`, `date_time`, `message`, `meta_data`) ' .
+                'VALUES (:value, :keyword, :date_time, :message, :meta_data)'
+            )
             ->willReturn($statement);
 
         /**
          * @var PDO          $pdo
          * @var LogInterface $log
          */
-        $writer = new PdoWriter($pdo, 'SQL QUERY', static function (LogInterface $log) {
-            return [
-                'message' => $log->getMessage(),
-            ];
-        });
+        $writer = new PdoWriter($pdo);
         $writer->write($log);
     }
 
@@ -221,11 +248,6 @@ class PdoWriterTest extends TestCase
      *
      * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::__construct()
      * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::write()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getStatement()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getPdo()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getQueryString()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getParameters()
-     * @covers \ExtendsFramework\Logger\Writer\Pdo\PdoWriter::getCallback()
      * @covers \ExtendsFramework\Logger\Writer\Pdo\Exception\StatementFailedWithError::__construct()
      */
     public function testFailedWithError(): void
@@ -245,6 +267,10 @@ class PdoWriterTest extends TestCase
             ->method('execute')
             ->with([
                 'message' => 'Exceptional error!',
+                'value' => 0,
+                'keyword' => '',
+                'date_time' => null,
+                'meta_data' => null,
             ])
             ->willReturn(false);
 
@@ -254,21 +280,22 @@ class PdoWriterTest extends TestCase
             ->willReturn('42S02');
 
         $pdo = $this->createMock(PDO::class);
+        /** @noinspection SqlNoDataSourceInspection */
+        /** @noinspection SqlResolve */
         $pdo
             ->expects($this->once())
             ->method('prepare')
-            ->with('SQL QUERY')
+            ->with(
+                'INSERT INTO `log` (`value`, `keyword`, `date_time`, `message`, `meta_data`) ' .
+                'VALUES (:value, :keyword, :date_time, :message, :meta_data)'
+            )
             ->willReturn($statement);
 
         /**
          * @var PDO          $pdo
          * @var LogInterface $log
          */
-        $writer = new PdoWriter($pdo, 'SQL QUERY', static function (LogInterface $log) {
-            return [
-                'message' => $log->getMessage(),
-            ];
-        });
+        $writer = new PdoWriter($pdo);
         $writer->write($log);
     }
 
@@ -300,9 +327,7 @@ class PdoWriterTest extends TestCase
          * @var ServiceLocatorInterface $serviceLocator
          */
         $writer = PdoWriter::factory(PdoWriter::class, $serviceLocator, [
-            'query_string' => '',
-            'callback' => static function () {
-            },
+            'table' => 'custom_table',
             'filters' => [
                 [
                     'name' => FilterInterface::class,

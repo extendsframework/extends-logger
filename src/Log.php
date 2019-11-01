@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsFramework\Logger;
 
 use DateTime;
+use Exception;
 use ExtendsFramework\Logger\Priority\Critical\CriticalPriority;
 use ExtendsFramework\Logger\Priority\PriorityInterface;
 
@@ -44,6 +45,7 @@ class Log implements LogInterface
      * @param PriorityInterface $priority
      * @param DateTime          $datetime
      * @param array             $metaData
+     * @throws Exception
      */
     public function __construct(
         string $message,
@@ -52,9 +54,9 @@ class Log implements LogInterface
         array $metaData = null
     ) {
         $this->message = $message;
-        $this->priority = $priority;
-        $this->datetime = $datetime;
-        $this->metaData = $metaData;
+        $this->priority = $priority ?? new CriticalPriority();
+        $this->datetime = $datetime ?? new DateTime();
+        $this->metaData = $metaData ?? [];
     }
 
     /**
@@ -70,10 +72,6 @@ class Log implements LogInterface
      */
     public function getPriority(): PriorityInterface
     {
-        if ($this->priority === null) {
-            $this->priority = new CriticalPriority();
-        }
-
         return $this->priority;
     }
 
@@ -82,10 +80,6 @@ class Log implements LogInterface
      */
     public function getDateTime(): DateTime
     {
-        if ($this->datetime === null) {
-            $this->datetime = new DateTime();
-        }
-
         return $this->datetime;
     }
 
@@ -94,10 +88,6 @@ class Log implements LogInterface
      */
     public function getMetaData(): array
     {
-        if ($this->metaData === null) {
-            $this->metaData = [];
-        }
-
         return $this->metaData;
     }
 

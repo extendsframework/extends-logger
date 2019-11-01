@@ -18,7 +18,6 @@ class LoggerMiddlewareTest extends TestCase
      *
      * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::__construct()
      * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::process()
-     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::getLogger()
      */
     public function testProcess(): void
     {
@@ -51,7 +50,6 @@ class LoggerMiddlewareTest extends TestCase
      *
      * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::__construct()
      * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::process()
-     * @covers \ExtendsFramework\Logger\Framework\Http\Middleware\Logger\LoggerMiddleware::getLogger()
      */
     public function testLog(): void
     {

@@ -13,7 +13,7 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
     /**
      * Debug backtrace limit.
      *
-     * @var int|null
+     * @var int
      */
     private $limit;
 
@@ -24,7 +24,7 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
      */
     public function __construct(int $limit = null)
     {
-        $this->limit = $limit;
+        $this->limit = $limit ?? 6;
     }
 
     /**
@@ -40,7 +40,7 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
      */
     public function decorate(LogInterface $log): LogInterface
     {
-        $backtrace = $this->getBacktrace();
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $this->limit);
         $call = end($backtrace);
 
         if (is_array($call)) {
@@ -50,31 +50,5 @@ class BacktraceDecorator implements DecoratorInterface, StaticFactoryInterface
         }
 
         return $log;
-    }
-
-    /**
-     * Get debug backtrace.
-     *
-     * Limit the backtrace to the call where the log was created.
-     *
-     * @return array
-     */
-    private function getBacktrace(): array
-    {
-        return debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $this->getLimit());
-    }
-
-    /**
-     * Get backtrace limit.
-     *
-     * @return int
-     */
-    private function getLimit(): int
-    {
-        if ($this->limit === null) {
-            $this->limit = 6;
-        }
-
-        return $this->limit;
     }
 }

@@ -38,21 +38,9 @@ class LoggerMiddleware implements MiddlewareInterface
         try {
             return $chain->proceed($request);
         } catch (Throwable $exception) {
-            $this
-                ->getLogger()
-                ->log($exception->getMessage());
+            $this->logger->log($exception->getMessage());
 
             throw $exception;
         }
-    }
-
-    /**
-     * Get logger.
-     *
-     * @return LoggerInterface
-     */
-    private function getLogger(): LoggerInterface
-    {
-        return $this->logger;
     }
 }

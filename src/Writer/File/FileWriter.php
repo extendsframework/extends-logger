@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Writer\File;
 
-use ExtendsFramework\Logger\Decorator\DecoratorInterface;
-use ExtendsFramework\Logger\Filter\FilterInterface;
 use ExtendsFramework\Logger\LogInterface;
 use ExtendsFramework\Logger\Writer\AbstractWriter;
 use ExtendsFramework\Logger\Writer\File\Exception\FileWriterFailed;
@@ -24,21 +22,21 @@ class FileWriter extends AbstractWriter
     /**
      * File format for date function.
      *
-     * @var string|null
+     * @var string
      */
     private $fileFormat;
 
     /**
      * Log message format.
      *
-     * @var string|null
+     * @var string
      */
     private $logFormat;
 
     /**
      * End of line character.
      *
-     * @var string|null
+     * @var string
      */
     private $newLine;
 
@@ -57,9 +55,9 @@ class FileWriter extends AbstractWriter
         string $newLine = null
     ) {
         $this->location = $location;
-        $this->fileFormat = $fileFormat;
-        $this->logFormat = $logFormat;
-        $this->newLine = $newLine;
+        $this->fileFormat = $fileFormat ?? 'Y-m-d';
+        $this->logFormat = $logFormat ?? '{datetime} {keyword} ({value}): {message} {metaData}';
+        $this->newLine = $newLine ?? PHP_EOL;
     }
 
     /**
@@ -76,15 +74,13 @@ class FileWriter extends AbstractWriter
         );
 
         foreach ($extra['filters'] ?? [] as $filter) {
-            /** @var FilterInterface $service */
-            $service = $serviceLocator->getService($filter['name'], $filter['options'] ?? []);
-            $writer->addFilter($service);
+            /** @noinspection PhpParamsInspection */
+            $writer->addFilter($serviceLocator->getService($filter['name'], $filter['options'] ?? []));
         }
 
         foreach ($extra['decorators'] ?? [] as $decorator) {
-            /** @var DecoratorInterface $service */
-            $service = $serviceLocator->getService($decorator['name'], $decorator['options'] ?? []);
-            $writer->addDecorator($service);
+            /** @noinspection PhpParamsInspection */
+            $writer->addDecorator($serviceLocator->getService($decorator['name'], $decorator['options'] ?? []));
         }
 
         return $writer;
@@ -97,11 +93,32 @@ class FileWriter extends AbstractWriter
     {
         if (!$this->filter($log)) {
             $log = $this->decorate($log);
-            $message = $this->getFormattedMessage($log);
-            $filename = $this->getFileName();
+
+            $metaData = $log->getMetaData() ?: null;
+            if (is_array($metaData)) {
+                $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_SLASHES);
+            }
+
+            $priority = $log->getPriority();
+            $replacePairs = [
+                '{datetime}' => $log
+                    ->getDateTime()
+                    ->format(DATE_ATOM),
+                '{keyword}' => strtoupper($priority->getKeyword()),
+                '{value}' => $priority->getValue(),
+                '{message}' => $log->getMessage(),
+                '{metaData}' => $metaData,
+            ];
+
+            $message = trim(strtr($this->logFormat, $replacePairs));
+            $filename = sprintf(
+                '%s/%s.log',
+                rtrim($this->location, '/'),
+                date($this->fileFormat)
+            );
 
             $handle = fopen($filename, 'ab');
-            if (fwrite($handle, $message . $this->getNewLine()) === false) {
+            if (fwrite($handle, $message . $this->newLine) === false) {
                 throw new FileWriterFailed($message, $filename);
             }
 
@@ -109,97 +126,5 @@ class FileWriter extends AbstractWriter
         }
 
         return $this;
-    }
-
-    /**
-     * Get formatted message for $log.
-     *
-     * @param LogInterface $log
-     * @return string
-     */
-    private function getFormattedMessage(LogInterface $log): string
-    {
-        $metaData = $log->getMetaData() ?: null;
-        if (is_array($metaData)) {
-            $metaData = json_encode($metaData, JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_UNESCAPED_SLASHES);
-        }
-
-        $priority = $log->getPriority();
-        $replacePairs = [
-            '{datetime}' => $log->getDateTime()
-                ->format(DATE_ATOM),
-            '{keyword}' => strtoupper($priority->getKeyword()),
-            '{value}' => $priority->getValue(),
-            '{message}' => $log->getMessage(),
-            '{metaData}' => $metaData,
-        ];
-
-        return trim(strtr($this->getLogFormat(), $replacePairs));
-    }
-
-    /**
-     * Return full path and filename.
-     *
-     * @return string
-     */
-    private function getFileName(): string
-    {
-        return sprintf(
-            '%s/%s.log',
-            rtrim($this->getLocation(), '/'),
-            date($this->getFileFormat())
-        );
-    }
-
-    /**
-     * Get log format.
-     *
-     * @return string
-     */
-    private function getLogFormat(): string
-    {
-        if ($this->logFormat === null) {
-            $this->logFormat = '{datetime} {keyword} ({value}): {message} {metaData}';
-        }
-
-        return $this->logFormat;
-    }
-
-    /**
-     * Get newline character(s).
-     *
-     * @return string
-     */
-    private function getNewLine(): string
-    {
-        if ($this->newLine === null) {
-            $this->newLine = PHP_EOL;
-        }
-
-        return $this->newLine;
-    }
-
-    /**
-     * Get location.
-     *
-     * @return string
-     */
-    private function getLocation(): string
-    {
-        return $this->location;
-    }
-
-    /**
-     * Get file format.
-     *
-     * @return string|null
-     */
-    private function getFileFormat(): ?string
-    {
-        if ($this->fileFormat === null) {
-            $this->fileFormat = 'Y-m-d';
-        }
-
-        return $this->fileFormat;
     }
 }
