@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace ExtendsFramework\Logger\Framework\Http\Middleware\Logger;
 
+use Exception;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
+use ExtendsFramework\Logger\Exception\LoggedExceptionInterface;
 use ExtendsFramework\Logger\LoggerInterface;
+use ExtendsFramework\Logger\Priority\Error\ErrorPriority;
 use PHPUnit\Framework\TestCase;
 
 class LoggerMiddlewareTest extends TestCase
@@ -33,9 +36,9 @@ class LoggerMiddlewareTest extends TestCase
             ->willReturn($this->createMock(ResponseInterface::class));
 
         /**
-         * @var LoggerInterface          $logger
+         * @var LoggerInterface $logger
          * @var MiddlewareChainInterface $chain
-         * @var RequestInterface         $request
+         * @var RequestInterface $request
          */
         $middleware = new LoggerMiddleware($logger);
         $response = $middleware->process($request, $chain);
@@ -53,14 +56,19 @@ class LoggerMiddlewareTest extends TestCase
      */
     public function testLog(): void
     {
-        $this->expectException(MiddlewareExceptionStub::class);
-        $this->expectExceptionMessage('Fancy exception message!');
+        $throwable = new Exception('Fancy exception message!', 123);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
             ->expects($this->once())
             ->method('log')
-            ->with('Fancy exception message!');
+            ->with(
+                'Fancy exception message!',
+                $this->isInstanceOf(ErrorPriority::class),
+                [
+                    'reference' => '123456'
+                ]
+            );
 
         $request = $this->createMock(RequestInterface::class);
 
@@ -69,14 +77,30 @@ class LoggerMiddlewareTest extends TestCase
             ->expects($this->once())
             ->method('proceed')
             ->with($request)
-            ->willThrowException(new MiddlewareExceptionStub('Fancy exception message!'));
+            ->willThrowException($throwable);
 
         /**
-         * @var LoggerInterface          $logger
+         * @var LoggerInterface $logger
          * @var MiddlewareChainInterface $chain
-         * @var RequestInterface         $request
+         * @var RequestInterface $request
          */
         $middleware = new LoggerMiddleware($logger);
-        $middleware->process($request, $chain);
+
+        try {
+            $middleware->process($request, $chain);
+        } catch (LoggedExceptionInterface $exception) {
+            $this->assertSame($throwable, $exception->getPrevious());
+            $this->assertSame('123456', $exception->getReference());
+        }
     }
+}
+
+/**
+ * Overwrite method.
+ *
+ * @return string
+ */
+function uniqid(): string
+{
+    return '123456';
 }
