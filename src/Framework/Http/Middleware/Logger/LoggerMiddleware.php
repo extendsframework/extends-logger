@@ -7,8 +7,8 @@ use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Middleware\MiddlewareInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
-use ExtendsFramework\Logger\Exception\LoggedException;
-use ExtendsFramework\Logger\Exception\LoggedExceptionInterface;
+use ExtendsFramework\Logger\Exception\ReferencedException;
+use ExtendsFramework\Logger\Exception\ReferencedExceptionInterface;
 use ExtendsFramework\Logger\LoggerInterface;
 use ExtendsFramework\Logger\Priority\Error\ErrorPriority;
 use Throwable;
@@ -34,7 +34,7 @@ class LoggerMiddleware implements MiddlewareInterface
 
     /**
      * @inheritDoc
-     * @throws LoggedExceptionInterface
+     * @throws ReferencedExceptionInterface
      */
     public function process(RequestInterface $request, MiddlewareChainInterface $chain): ResponseInterface
     {
@@ -47,7 +47,7 @@ class LoggerMiddleware implements MiddlewareInterface
                 'reference' => $reference,
             ]);
 
-            throw new LoggedException($exception, $reference);
+            throw new ReferencedException($exception, $reference);
         }
     }
 }

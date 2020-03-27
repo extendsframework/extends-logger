@@ -6,7 +6,7 @@ namespace ExtendsFramework\Logger\Exception;
 use Exception;
 use Throwable;
 
-class LoggedException extends Exception implements LoggedExceptionInterface
+class ReferencedException extends Exception implements ReferencedExceptionInterface
 {
     /**
      * Reference.

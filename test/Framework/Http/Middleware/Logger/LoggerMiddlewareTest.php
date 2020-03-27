@@ -7,7 +7,7 @@ use Exception;
 use ExtendsFramework\Http\Middleware\Chain\MiddlewareChainInterface;
 use ExtendsFramework\Http\Request\RequestInterface;
 use ExtendsFramework\Http\Response\ResponseInterface;
-use ExtendsFramework\Logger\Exception\LoggedExceptionInterface;
+use ExtendsFramework\Logger\Exception\ReferencedExceptionInterface;
 use ExtendsFramework\Logger\LoggerInterface;
 use ExtendsFramework\Logger\Priority\Error\ErrorPriority;
 use PHPUnit\Framework\TestCase;
@@ -88,7 +88,7 @@ class LoggerMiddlewareTest extends TestCase
 
         try {
             $middleware->process($request, $chain);
-        } catch (LoggedExceptionInterface $exception) {
+        } catch (ReferencedExceptionInterface $exception) {
             $this->assertSame($throwable, $exception->getPrevious());
             $this->assertSame('123456', $exception->getReference());
         }

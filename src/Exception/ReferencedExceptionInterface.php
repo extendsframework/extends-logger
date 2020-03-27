@@ -5,7 +5,7 @@ namespace ExtendsFramework\Logger\Exception;
 
 use Throwable;
 
-interface LoggedExceptionInterface extends Throwable
+interface ReferencedExceptionInterface extends Throwable
 {
     /**
      * Get reference for logged exception.

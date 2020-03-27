@@ -6,19 +6,19 @@ namespace ExtendsFramework\Logger\Exception;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
-class LoggedExceptionTest extends TestCase
+class ReferencedExceptionTest extends TestCase
 {
     /**
      * Test that getters will return correct values.
      *
-     * @covers \ExtendsFramework\Logger\Exception\LoggedException::__construct()
-     * @covers \ExtendsFramework\Logger\Exception\LoggedException::getReference()
+     * @covers \ExtendsFramework\Logger\Exception\ReferencedException::__construct()
+     * @covers \ExtendsFramework\Logger\Exception\ReferencedException::getReference()
      */
     public function testGetters(): void
     {
         $throwable = new Exception('Foo bar!', 123);
 
-        $exception = new LoggedException($throwable, 'foobar');
+        $exception = new ReferencedException($throwable, 'foobar');
 
         $this->assertSame('Foo bar!', $exception->getMessage());
         $this->assertSame(123, $exception->getCode());
